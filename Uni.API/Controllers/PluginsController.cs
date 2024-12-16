@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Uni.API.Services;
 
 namespace Uni.API.Controllers
 {
-#if RELEASE
 	[Authorize]
-#endif
 	[ApiController]
 	public class PluginsController : ControllerBase
 	{
