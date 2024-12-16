@@ -24,14 +24,13 @@ namespace Uni.API
 
 		public UniAPIStartup(IConfiguration configuration)
 		{
+			_plugins = new List<IUNIAPIPlugin>();
 			Configuration = configuration;
 			LoadPlugins(configuration);
 		}
 
 		private void LoadPlugins(IConfiguration configuration)
 		{
-			_plugins = new List<IUNIAPIPlugin>();
-
 			Console.WriteLine("Getting target plugin list...");
 			var toUse = configuration.GetSection("UsePlugins").Get<List<string>>();
 			if (toUse == null)
@@ -101,8 +100,6 @@ namespace Uni.API
 			services.AddControllers(options =>
 			{
 				options.Filters.Add(new BaseExceptionFilter());
-				options.InputFormatters.Add(new XmlSerializerInputFormatter(options));
-				options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
 				options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(_ => "The field is required");
 			});
 
@@ -126,9 +123,6 @@ namespace Uni.API
 			app.UseHttpsRedirection();
 
 			app.UseRouting();
-
-			app.UseAuthentication();
-			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
 			{
