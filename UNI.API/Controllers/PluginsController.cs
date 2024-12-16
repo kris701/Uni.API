@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using UNI.API.Services;
+using Uni.API.Services;
 
-namespace UNI.API.Controllers
+namespace Uni.API.Controllers
 {
 #if RELEASE
 	[Authorize]

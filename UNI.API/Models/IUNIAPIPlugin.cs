@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace UNI.API.Models
+namespace Uni.API.Models
 {
-	public interface IHelvwarePlugin
+	public interface IUNIAPIPlugin
 	{
 		public Guid ID { get; }
 		public string Name { get; }

@@ -1,12 +1,12 @@
-﻿using UNI.API.Models;
+﻿using Uni.API.Models;
 
-namespace UNI.API.Services
+namespace Uni.API.Services
 {
 	public class PluginsService
 	{
-		public List<IHelvwarePlugin> Plugins { get; }
+		public List<IUNIAPIPlugin> Plugins { get; }
 
-		public PluginsService(List<IHelvwarePlugin> plugins)
+		public PluginsService(List<IUNIAPIPlugin> plugins)
 		{
 			Plugins = plugins;
 		}

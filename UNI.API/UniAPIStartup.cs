@@ -6,20 +6,23 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
-using UNI.API.Exceptions;
-using UNI.API.Models;
-using UNI.API.Services;
+using Uni.API.Exceptions;
+using Uni.API.Models;
+using Uni.API.Services;
 
-namespace UNI.API
+namespace Uni.API
 {
-	public class Startup
+	/// <summary>
+	/// Startup implementation for the Uni API
+	/// </summary>
+	public class UniAPIStartup
 	{
 		public IConfiguration Configuration { get; }
 
-		private readonly string _pluginNamespace = "Helvion.Helvware.Plugin";
-		private List<IHelvwarePlugin> _plugins;
+		private readonly string _pluginNamespace = "UNI.API.Plugins";
+		private List<IUNIAPIPlugin> _plugins;
 
-		public Startup(IConfiguration configuration)
+		public UniAPIStartup(IConfiguration configuration)
 		{
 			Configuration = configuration;
 			LoadPlugins(configuration);
@@ -27,7 +30,7 @@ namespace UNI.API
 
 		private void LoadPlugins(IConfiguration configuration)
 		{
-			_plugins = new List<IHelvwarePlugin>();
+			_plugins = new List<IUNIAPIPlugin>();
 
 			Console.WriteLine("Getting target plugin list...");
 			var toUse = configuration.GetSection("UsePlugins").Get<List<string>>();
@@ -58,9 +61,9 @@ namespace UNI.API
 			// Instantiate Plugins
 			Console.WriteLine("Instantiating all plugins...");
 			var plugins = GetTypesInNamespace(_pluginNamespace);
-			plugins.RemoveAll(x => !x.IsAssignableTo(typeof(IHelvwarePlugin)));
+			plugins.RemoveAll(x => !x.IsAssignableTo(typeof(IUNIAPIPlugin)));
 			foreach (var type in plugins)
-				if (Activator.CreateInstance(type) is IHelvwarePlugin plugin)
+				if (Activator.CreateInstance(type) is IUNIAPIPlugin plugin)
 					_plugins.Add(plugin);
 
 			Console.WriteLine($"A total of {_plugins.Count} plugins instantiated");
@@ -82,11 +85,15 @@ namespace UNI.API
 			return total;
 		}
 
-		public void ConfigureServices(IServiceCollection services)
+		/// <summary>
+		/// Base implementation to configure services
+		/// </summary>
+		/// <param name="services"></param>
+		public virtual void ConfigureServices(IServiceCollection services)
 		{
 			services.AddSwaggerGen(c =>
 			{
-				c.SwaggerDoc("v1", new OpenApiInfo { Title = "Helvware API", Version = "v1" });
+				c.SwaggerDoc("v1", new OpenApiInfo { Title = "UNI API", Version = "v1" });
 				var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 				c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 			});
@@ -105,7 +112,13 @@ namespace UNI.API
 				plugin.ConfigureServices(services);
 		}
 
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+		/// <summary>
+		/// Base implementation to configure the platform
+		/// </summary>
+		/// <param name="app"></param>
+		/// <param name="env"></param>
+		/// <param name="loggerFactory"></param>
+		public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
 		{
 			app.UseSwagger();
 			app.UseSwaggerUI();

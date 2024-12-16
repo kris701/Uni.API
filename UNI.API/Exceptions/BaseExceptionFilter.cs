@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using UNI.API.Models;
+using Uni.API.Models;
 
-namespace UNI.API.Exceptions
+namespace Uni.API.Exceptions
 {
 	public class BaseExceptionFilter : IExceptionFilter
 	{

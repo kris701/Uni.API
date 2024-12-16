@@ -1,4 +1,4 @@
-﻿namespace UNI.API.Models
+﻿namespace Uni.API.Models
 {
 	public class ErrorModel
 	{
