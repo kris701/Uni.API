@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,7 +19,7 @@ namespace Uni.API
 		public IConfiguration Configuration { get; }
 
 		private readonly string _pluginNamespace = "UNI.API.Plugins";
-		private List<IUNIAPIPlugin> _plugins;
+		private readonly List<IUNIAPIPlugin> _plugins;
 
 		public UniAPIStartup(IConfiguration configuration)
 		{
