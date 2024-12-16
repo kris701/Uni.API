@@ -17,8 +17,11 @@ namespace Uni.API
 	public class UniAPIStartup
 	{
 		public IConfiguration Configuration { get; }
+		public List<string> PluginNamespaces { get; set; } = new List<string>()
+		{
+			"UNI.API.Plugins"
+		};
 
-		private readonly string _pluginNamespace = "UNI.API.Plugins";
 		private readonly List<IUNIAPIPlugin> _plugins;
 
 		public UniAPIStartup(IConfiguration configuration)
@@ -47,7 +50,7 @@ namespace Uni.API
 
 			Console.WriteLine("Removing all from the list that is not in the plugin namespace...");
 			var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll").ToList();
-			referencedPaths.RemoveAll(x => !x.Contains(_pluginNamespace));
+			referencedPaths.RemoveAll(x => !PluginNamespaces.Any(y => x.Contains(y)));
 			var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).ToList();
 
 			Console.WriteLine("Removing all from the list that is not in the plugin list...");
@@ -58,7 +61,9 @@ namespace Uni.API
 
 			// Instantiate Plugins
 			Console.WriteLine("Instantiating all plugins...");
-			var plugins = GetTypesInNamespace(_pluginNamespace);
+			List<Type> plugins = new List<Type>();
+			foreach(var nameSpace in PluginNamespaces)
+				plugins.AddRange(GetTypesInNamespace(nameSpace));
 			plugins.RemoveAll(x => !x.IsAssignableTo(typeof(IUNIAPIPlugin)));
 			foreach (var type in plugins)
 				if (Activator.CreateInstance(type) is IUNIAPIPlugin plugin)
