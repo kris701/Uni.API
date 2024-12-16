@@ -19,18 +19,20 @@ namespace Uni.API
 		public static string DefaultPluginNamespace = "Uni.API.Plugins";
 
 		public IConfiguration Configuration { get; }
-		public List<string> PluginNamespaces { get; set; } = new List<string>()
-		{
-			DefaultPluginNamespace
-		};
+		public List<string> PluginNamespaces { get; set; } = new List<string>();
 
 		private readonly List<IUniAPIPlugin> _plugins;
 
-		public UniAPIStartup(IConfiguration configuration)
+		public UniAPIStartup(IConfiguration configuration, List<string> pluginNamespace)
 		{
 			_plugins = new List<IUniAPIPlugin>();
 			Configuration = configuration;
+			PluginNamespaces = pluginNamespace;
 			LoadPlugins(configuration);
+		}
+
+		public UniAPIStartup(IConfiguration configuration) : this(configuration, new List<string>() { DefaultPluginNamespace })
+		{
 		}
 
 		private void LoadPlugins(IConfiguration configuration)
