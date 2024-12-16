@@ -58,7 +58,9 @@ namespace Uni.API
 			var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll").ToList();
 			Console.WriteLine($"A total of {referencedPaths.Count} assemblies referenced");
 			referencedPaths.RemoveAll(x => !PluginNamespaces.Any(y => x.StartsWith(y)));
+			Console.WriteLine($"A total of {referencedPaths.Count} assemblies referenced that is within a plugin namespace.");
 			var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).ToList();
+			Console.WriteLine($"A total of {toLoad.Count} plugin assemblies to load");
 
 			Console.WriteLine("Removing all from the list that is not in the plugin list...");
 			toLoad.RemoveAll(x => !toUse.Any(y => x.EndsWith($"{y}.dll")));
