@@ -16,10 +16,12 @@ namespace Uni.API
 	/// </summary>
 	public class UniAPIStartup
 	{
+		public static string DefaultPluginNamespace = "Uni.API.Plugins";
+
 		public IConfiguration Configuration { get; }
 		public List<string> PluginNamespaces { get; set; } = new List<string>()
 		{
-			"UNI.API.Plugins"
+			DefaultPluginNamespace
 		};
 
 		private readonly List<IUNIAPIPlugin> _plugins;
@@ -50,6 +52,7 @@ namespace Uni.API
 
 			Console.WriteLine("Removing all from the list that is not in the plugin namespace...");
 			var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll").ToList();
+			Console.WriteLine($"A total of {referencedPaths.Count} assemblies referenced");
 			referencedPaths.RemoveAll(x => !PluginNamespaces.Any(y => x.Contains(y)));
 			var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).ToList();
 
