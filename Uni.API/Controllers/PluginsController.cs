@@ -4,7 +4,6 @@ using Uni.API.Services;
 
 namespace Uni.API.Controllers
 {
-	[Authorize]
 	[ApiController]
 	public class PluginsController : ControllerBase
 	{

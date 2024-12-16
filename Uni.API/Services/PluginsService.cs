@@ -4,9 +4,9 @@ namespace Uni.API.Services
 {
 	public class PluginsService
 	{
-		public List<IUNIAPIPlugin> Plugins { get; }
+		public List<IUniAPIPlugin> Plugins { get; }
 
-		public PluginsService(List<IUNIAPIPlugin> plugins)
+		public PluginsService(List<IUniAPIPlugin> plugins)
 		{
 			Plugins = plugins;
 		}

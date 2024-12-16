@@ -24,11 +24,11 @@ namespace Uni.API
 			DefaultPluginNamespace
 		};
 
-		private readonly List<IUNIAPIPlugin> _plugins;
+		private readonly List<IUniAPIPlugin> _plugins;
 
 		public UniAPIStartup(IConfiguration configuration)
 		{
-			_plugins = new List<IUNIAPIPlugin>();
+			_plugins = new List<IUniAPIPlugin>();
 			Configuration = configuration;
 			LoadPlugins(configuration);
 		}
@@ -45,6 +45,10 @@ namespace Uni.API
 				return;
 			}
 
+			Console.WriteLine($"Plugin namespaces to search ({PluginNamespaces.Count} in total):");
+			foreach (var nameSpace in PluginNamespaces)
+				Console.WriteLine($"\t{nameSpace}");
+
 			Console.WriteLine("Getting all assemblies in current domain...");
 			var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
 			var loadedPaths = loadedAssemblies.Select(a => a.Location).ToArray();
@@ -53,7 +57,7 @@ namespace Uni.API
 			Console.WriteLine("Removing all from the list that is not in the plugin namespace...");
 			var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll").ToList();
 			Console.WriteLine($"A total of {referencedPaths.Count} assemblies referenced");
-			referencedPaths.RemoveAll(x => !PluginNamespaces.Any(y => x.Contains(y)));
+			referencedPaths.RemoveAll(x => !PluginNamespaces.Any(y => x.StartsWith(y)));
 			var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).ToList();
 
 			Console.WriteLine("Removing all from the list that is not in the plugin list...");
@@ -67,9 +71,9 @@ namespace Uni.API
 			List<Type> plugins = new List<Type>();
 			foreach(var nameSpace in PluginNamespaces)
 				plugins.AddRange(GetTypesInNamespace(nameSpace));
-			plugins.RemoveAll(x => !x.IsAssignableTo(typeof(IUNIAPIPlugin)));
+			plugins.RemoveAll(x => !x.IsAssignableTo(typeof(IUniAPIPlugin)));
 			foreach (var type in plugins)
-				if (Activator.CreateInstance(type) is IUNIAPIPlugin plugin)
+				if (Activator.CreateInstance(type) is IUniAPIPlugin plugin)
 					_plugins.Add(plugin);
 
 			Console.WriteLine($"A total of {_plugins.Count} plugins instantiated");

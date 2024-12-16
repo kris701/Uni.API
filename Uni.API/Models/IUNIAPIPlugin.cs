@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Uni.API.Models
 {
-	public interface IUNIAPIPlugin
+	public interface IUniAPIPlugin
 	{
 		public Guid ID { get; }
 		public string Name { get; }
