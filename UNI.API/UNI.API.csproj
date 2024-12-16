@@ -4,6 +4,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <Title>Uni.API</Title>
+	  <Authors>Kristian Skov Johansen</Authors>
+	  <Description>A project to unify general ASP.NET APIs into a single plugin system.</Description>
+	  <RepositoryUrl>https://github.com/kris701/Uni.API</RepositoryUrl>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
