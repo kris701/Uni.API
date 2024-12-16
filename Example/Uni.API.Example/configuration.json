@@ -1,0 +1,9 @@
+{
+  "UsePlugins": [
+    "ExamplePlugin"
+  ],
+
+  "ExamplePluginSetup": {
+    "value1": "ABC"
+  }
+}

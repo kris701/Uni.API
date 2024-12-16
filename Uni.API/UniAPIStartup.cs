@@ -23,7 +23,7 @@ namespace Uni.API
 
 		private readonly List<IUniAPIPlugin> _plugins;
 
-		public UniAPIStartup(IConfiguration configuration, List<string> pluginNamespace)
+		internal UniAPIStartup(IConfiguration configuration, List<string> pluginNamespace)
 		{
 			_plugins = new List<IUniAPIPlugin>();
 			Configuration = configuration;
@@ -69,6 +69,9 @@ namespace Uni.API
 
 			Console.WriteLine($"A total of {toLoad.Count} plugin assemblies to load.");
 			toLoad.ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path))));
+
+			if (toUse.Count != toLoad.Count)
+				Console.WriteLine("Not all targeted plugins could be found!");
 
 			// Instantiate Plugins
 			Console.WriteLine("Instantiating all plugins...");
