@@ -94,13 +94,6 @@ namespace Uni.API
 		/// <param name="services"></param>
 		public virtual void ConfigureServices(IServiceCollection services)
 		{
-			services.AddSwaggerGen(c =>
-			{
-				c.SwaggerDoc("v1", new OpenApiInfo { Title = "UNI API", Version = "v1" });
-				var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-				c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-			});
-
 			services.AddControllers(options =>
 			{
 				options.Filters.Add(new BaseExceptionFilter());
@@ -109,6 +102,11 @@ namespace Uni.API
 
 			services.AddSingleton(new PluginsService(_plugins));
 
+			ConfigurePlugins(services);
+		}
+
+		internal void ConfigurePlugins(IServiceCollection services)
+		{
 			foreach (var plugin in _plugins)
 				plugin.ConfigureServices(services);
 		}
@@ -121,9 +119,6 @@ namespace Uni.API
 		/// <param name="loggerFactory"></param>
 		public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
 		{
-			app.UseSwagger();
-			app.UseSwaggerUI();
-
 			app.UseHttpsRedirection();
 
 			app.UseRouting();
