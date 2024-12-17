@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Uni.API.Services
 {
+	// Modified version of https://stackoverflow.com/a/61325554
 	internal class CustomControllerFeatureProvider : ControllerFeatureProvider
 	{
 		private readonly List<string> _allowedNamespaces;

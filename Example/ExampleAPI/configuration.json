@@ -1,6 +1,7 @@
 {
   "UsePlugins": [
-    "ExamplePlugin"
+    "ExamplePlugin",
+    "ExamplePlugin2"
   ],
 
   "ExamplePluginSetup": {

@@ -70,15 +70,18 @@ namespace Uni.API
 			_logger.LogInformation($"A total of {referencedPaths.Count} assemblies referenced");
 			referencedPaths.RemoveAll(x => !PluginNamespaces.Any(y => x.Contains(y)));
 			_logger.LogInformation($"A total of {referencedPaths.Count} assemblies referenced that is within a plugin namespace.");
-			var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).ToList();
+			var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).Select(x => new FileInfo(x)).ToList();
 			_logger.LogInformation($"A total of {toLoad.Count} plugin assemblies to load");
 
 			_logger.LogInformation("Removing all from the list that is not in the plugin list...");
-			toLoad.RemoveAll(x => !toUse.Any(y => x.EndsWith($"{y}.dll")));
-
-			_logger.LogInformation($"A total of {toLoad.Count} plugin assemblies to load.");
-			toLoad.ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path))));
-			if (toUse.Count != toLoad.Count)
+			toLoad.RemoveAll(x => !toUse.Any(y => x.Name.EndsWith($"{y}.dll")));
+			var orderedToLoad = new List<FileInfo>();
+			foreach (var target in toUse)
+				orderedToLoad.Add(toLoad.First(x => x.Name.EndsWith($"{target}.dll")));
+			
+			_logger.LogInformation($"A total of {orderedToLoad.Count} plugin assemblies to load.");
+			orderedToLoad.ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path.FullName))));
+			if (toUse.Count != orderedToLoad.Count)
 				_logger.LogWarning("Not all targeted plugins could be found!");
 
 			// Instantiate Plugins

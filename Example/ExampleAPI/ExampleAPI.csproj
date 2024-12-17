@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Uni.API\Uni.API.csproj" />
+    <ProjectReference Include="..\Plugins\ExampleAPI.Plugins.ExamplePlugin2\ExampleAPI.Plugins.ExamplePlugin2.csproj" />
     <ProjectReference Include="..\Plugins\ExamplePlugin\ExampleAPI.Plugins.ExamplePlugin.csproj" />
   </ItemGroup>
 

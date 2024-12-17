@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{7081
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleAPI.Plugins.ExamplePlugin", "Example\Plugins\ExamplePlugin\ExampleAPI.Plugins.ExamplePlugin.csproj", "{976D9B38-2ADA-4A0B-9DE4-B6479C7D3116}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleAPI.Plugins.ExamplePlugin2", "Example\Plugins\ExampleAPI.Plugins.ExamplePlugin2\ExampleAPI.Plugins.ExamplePlugin2.csproj", "{36786204-1D28-4155-BCF6-B50B166D5E89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{976D9B38-2ADA-4A0B-9DE4-B6479C7D3116}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{976D9B38-2ADA-4A0B-9DE4-B6479C7D3116}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{976D9B38-2ADA-4A0B-9DE4-B6479C7D3116}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36786204-1D28-4155-BCF6-B50B166D5E89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36786204-1D28-4155-BCF6-B50B166D5E89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36786204-1D28-4155-BCF6-B50B166D5E89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36786204-1D28-4155-BCF6-B50B166D5E89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -47,5 +53,6 @@ Global
 		{5644EA1E-C650-4157-99EF-A18486654B78} = {5A8BB779-DECE-47F3-9700-4867C5AFA0A6}
 		{7081459A-840B-4A56-A6AA-C48F81F3CB4C} = {5A8BB779-DECE-47F3-9700-4867C5AFA0A6}
 		{976D9B38-2ADA-4A0B-9DE4-B6479C7D3116} = {7081459A-840B-4A56-A6AA-C48F81F3CB4C}
+		{36786204-1D28-4155-BCF6-B50B166D5E89} = {7081459A-840B-4A56-A6AA-C48F81F3CB4C}
 	EndGlobalSection
 EndGlobal
