@@ -8,6 +8,7 @@ namespace Uni.API.Models
 		public Guid ID { get; }
 		public string Name { get; }
 		public bool IsActive { get; }
+		public List<Guid> Requires { get; }
 
 		public void ConfigureConfiguration(IConfiguration configuration);
 		public void ConfigureServices(IServiceCollection services);

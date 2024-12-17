@@ -3,6 +3,9 @@ using Uni.API;
 
 namespace ExampleAPI
 {
+	/// <summary>
+	/// Simple extension to the default <seealso cref="UniAPIStartup"/> that adds another plugin namespace as well as enabling swagger.
+	/// </summary>
 	public class SampleStartup : UniAPIStartup
 	{
 		public SampleStartup(IConfiguration configuration) : base(
