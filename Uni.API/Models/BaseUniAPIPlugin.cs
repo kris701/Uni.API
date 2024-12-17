@@ -14,6 +14,7 @@ namespace Uni.API.Models
 		public string Name { get; }
 		public bool IsActive { get; private set; } = false;
 		public List<Guid> Requires { get; }
+		public string NameSpace { get; set; } = "";
 
 		protected BaseUniAPIPlugin(Guid iD, string name)
 		{

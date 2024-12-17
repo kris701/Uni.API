@@ -9,6 +9,7 @@ namespace Uni.API.Models
 		public string Name { get; }
 		public bool IsActive { get; }
 		public List<Guid> Requires { get; }
+		public string NameSpace { get; set; }
 
 		public void ConfigureConfiguration(IConfiguration configuration);
 		public void ConfigureServices(IServiceCollection services);

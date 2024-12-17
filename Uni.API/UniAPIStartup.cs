@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -77,7 +78,6 @@ namespace Uni.API
 
 			_logger.LogInformation($"A total of {toLoad.Count} plugin assemblies to load.");
 			toLoad.ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path))));
-
 			if (toUse.Count != toLoad.Count)
 				_logger.LogWarning("Not all targeted plugins could be found!");
 
@@ -88,8 +88,13 @@ namespace Uni.API
 				plugins.AddRange(GetTypesInNamespace(nameSpace));
 			plugins.RemoveAll(x => !x.IsAssignableTo(typeof(IUniAPIPlugin)));
 			foreach (var type in plugins)
+			{
 				if (Activator.CreateInstance(type) is IUniAPIPlugin plugin)
+				{
+					plugin.NameSpace = type.Namespace;
 					_plugins.Add(plugin);
+				}
+			}
 
 			_logger.LogInformation($"A total of {_plugins.Count} plugins instantiated");
 
@@ -132,6 +137,12 @@ namespace Uni.API
 			{
 				options.Filters.Add(new BaseExceptionFilter());
 				options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(_ => "The field is required");
+			}).ConfigureApplicationPartManager(manager =>
+			{
+				manager.FeatureProviders.Remove(manager.FeatureProviders.OfType<ControllerFeatureProvider>().FirstOrDefault());
+				var allowed = _plugins.Select(x => x.NameSpace).ToList();
+				allowed.Add("Uni.API.Controllers");
+				manager.FeatureProviders.Add(new CustomControllerFeatureProvider(allowed));
 			});
 
 			services.AddSingleton(new PluginsService(_plugins));

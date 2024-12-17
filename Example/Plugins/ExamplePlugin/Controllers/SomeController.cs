@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ExampleAPI.Plugins.ExamplePlugin.Controllers
 {
-	[ApiController]
 	public class SomeController : ControllerBase
 	{
 		private readonly SomePluginConfiguration _config;
