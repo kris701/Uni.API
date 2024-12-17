@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
 using System.Reflection;
 using Uni.API.Exceptions;
 using Uni.API.Models;
@@ -23,7 +22,7 @@ namespace Uni.API
 
 		private readonly List<IUniAPIPlugin> _plugins;
 
-		internal UniAPIStartup(IConfiguration configuration, List<string> pluginNamespace)
+		public UniAPIStartup(IConfiguration configuration, List<string> pluginNamespace)
 		{
 			_plugins = new List<IUniAPIPlugin>();
 			Configuration = configuration;
@@ -31,6 +30,7 @@ namespace Uni.API
 			LoadPlugins(configuration);
 		}
 
+		[ActivatorUtilitiesConstructor]
 		public UniAPIStartup(IConfiguration configuration) : this(configuration, new List<string>() { DefaultPluginNamespace })
 		{
 		}
@@ -76,7 +76,7 @@ namespace Uni.API
 			// Instantiate Plugins
 			Console.WriteLine("Instantiating all plugins...");
 			List<Type> plugins = new List<Type>();
-			foreach(var nameSpace in PluginNamespaces)
+			foreach (var nameSpace in PluginNamespaces)
 				plugins.AddRange(GetTypesInNamespace(nameSpace));
 			plugins.RemoveAll(x => !x.IsAssignableTo(typeof(IUniAPIPlugin)));
 			foreach (var type in plugins)

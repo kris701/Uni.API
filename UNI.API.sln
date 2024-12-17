@@ -13,13 +13,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uni.API.Example", "Example\Uni.API.Example\Uni.API.Example.csproj", "{5644EA1E-C650-4157-99EF-A18486654B78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleAPI", "Example\ExampleAPI\ExampleAPI.csproj", "{5644EA1E-C650-4157-99EF-A18486654B78}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Example", "Example", "{5A8BB779-DECE-47F3-9700-4867C5AFA0A6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{7081459A-840B-4A56-A6AA-C48F81F3CB4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uni.API.Plugins.ExamplePlugin", "Example\Plugins\ExamplePlugin\Uni.API.Plugins.ExamplePlugin.csproj", "{976D9B38-2ADA-4A0B-9DE4-B6479C7D3116}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleAPI.Plugins.ExamplePlugin", "Example\Plugins\ExamplePlugin\ExampleAPI.Plugins.ExamplePlugin.csproj", "{976D9B38-2ADA-4A0B-9DE4-B6479C7D3116}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

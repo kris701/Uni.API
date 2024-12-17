@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using ExampleAPI.Plugins.ExamplePlugin.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Uni.API.Models;
 
-namespace Uni.API.Plugins
+namespace ExampleAPI.Plugins.ExamplePlugin
 {
 	public class ExamplePluginPlugin : IUniAPIPlugin
 	{
@@ -10,15 +11,21 @@ namespace Uni.API.Plugins
 		public string Name { get; } = "Example Plugin";
 		public bool IsActive { get; private set; } = false;
 
+		private string _someImportantConfigValue = "";
+
 		public void ConfigureConfiguration(IConfiguration configuration)
 		{
 			// Do whatever configuration you need
-			var someImportantConfigValue = configuration.GetSection("ExamplePluginSetup").GetValue<string>("value1");
+			_someImportantConfigValue = configuration.GetSection("ExamplePluginSetup").GetValue<string>("value1");
 		}
 
 		public void ConfigureServices(IServiceCollection services)
 		{
 			// Configure plugin services here
+			services.AddSingleton(new SomePluginConfiguration()
+			{
+				Value1 = _someImportantConfigValue
+			});
 			IsActive = true;
 		}
 	}
