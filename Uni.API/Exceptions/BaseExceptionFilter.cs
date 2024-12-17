@@ -4,7 +4,7 @@ using Uni.API.Models;
 
 namespace Uni.API.Exceptions
 {
-	public class BaseExceptionFilter : IExceptionFilter
+	internal class BaseExceptionFilter : IExceptionFilter
 	{
 		public void OnException(ExceptionContext context)
 		{

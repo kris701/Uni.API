@@ -1,11 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Uni.API.Services
 {
@@ -24,9 +18,8 @@ namespace Uni.API.Services
 			var isController = base.IsController(typeInfo);
 
 			if (isController)
-			{
-				isController = _allowedNamespaces.Any(x => typeInfo.Namespace.Contains(x));
-			}
+				if (typeInfo.Namespace != null)
+					isController = _allowedNamespaces.Any(x => typeInfo.Namespace.Contains(x));
 
 			return isController;
 		}

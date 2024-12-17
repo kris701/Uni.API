@@ -1,14 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Uni.API.Services;
+using Uni.API.Models;
 
 namespace Uni.API.Controllers
 {
+	/// <summary>
+	/// Plugin controller
+	/// </summary>
 	[ApiController]
 	public class PluginsController : ControllerBase
 	{
-		private readonly PluginsService _pluginService;
+		private readonly PluginsModel _pluginService;
 
-		public PluginsController(PluginsService pluginService)
+		/// <summary>
+		/// Main constructor
+		/// </summary>
+		/// <param name="pluginService"></param>
+		public PluginsController(PluginsModel pluginService)
 		{
 			_pluginService = pluginService;
 		}

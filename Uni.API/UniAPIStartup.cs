@@ -16,14 +16,27 @@ namespace Uni.API
 	/// </summary>
 	public class UniAPIStartup
 	{
+		/// <summary>
+		/// Default namespace to find plugins in.
+		/// </summary>
 		public static string DefaultPluginNamespace = "Uni.API.Plugins";
-
+		/// <summary>
+		/// Configuration for the API.
+		/// </summary>
 		public IConfiguration Configuration { get; }
-		public List<string> PluginNamespaces { get; set; } = new List<string>();
+		/// <summary>
+		/// List of plugin namespaces to look for plugins in.
+		/// </summary>
+		public List<string> PluginNamespaces { get; set; }
 
 		private readonly List<IUniAPIPlugin> _plugins;
 		private readonly ILogger<UniAPIStartup> _logger;
 
+		/// <summary>
+		/// Constructor with override for plugin namespaces
+		/// </summary>
+		/// <param name="configuration"></param>
+		/// <param name="pluginNamespace"></param>
 		public UniAPIStartup(IConfiguration configuration, List<string> pluginNamespace)
 		{
 			_plugins = new List<IUniAPIPlugin>();
@@ -39,6 +52,10 @@ namespace Uni.API
 			LoadPlugins(Configuration);
 		}
 
+		/// <summary>
+		/// Main constructor
+		/// </summary>
+		/// <param name="configuration"></param>
 		[ActivatorUtilitiesConstructor]
 		public UniAPIStartup(IConfiguration configuration) : this(configuration, new List<string>() { DefaultPluginNamespace })
 		{
@@ -78,7 +95,7 @@ namespace Uni.API
 			var orderedToLoad = new List<FileInfo>();
 			foreach (var target in toUse)
 				orderedToLoad.Add(toLoad.First(x => x.Name.EndsWith($"{target}.dll")));
-			
+
 			_logger.LogInformation($"A total of {orderedToLoad.Count} plugin assemblies to load.");
 			orderedToLoad.ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path.FullName))));
 			if (toUse.Count != orderedToLoad.Count)
@@ -92,6 +109,8 @@ namespace Uni.API
 			plugins.RemoveAll(x => !x.IsAssignableTo(typeof(IUniAPIPlugin)));
 			foreach (var type in plugins)
 			{
+				if (type.Namespace == null)
+					continue;
 				if (Activator.CreateInstance(type) is IUniAPIPlugin plugin)
 				{
 					plugin.NameSpace = type.Namespace;
@@ -142,13 +161,15 @@ namespace Uni.API
 				options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(_ => "The field is required");
 			}).ConfigureApplicationPartManager(manager =>
 			{
-				manager.FeatureProviders.Remove(manager.FeatureProviders.OfType<ControllerFeatureProvider>().FirstOrDefault());
+				var existing = manager.FeatureProviders.OfType<ControllerFeatureProvider>().FirstOrDefault();
+				if (existing != null)
+					manager.FeatureProviders.Remove(existing);
 				var allowed = _plugins.Select(x => x.NameSpace).ToList();
 				allowed.Add("Uni.API.Controllers");
 				manager.FeatureProviders.Add(new CustomControllerFeatureProvider(allowed));
 			});
 
-			services.AddSingleton(new PluginsService(_plugins));
+			services.AddSingleton(new PluginsModel(_plugins));
 
 			ConfigurePlugins(services);
 		}

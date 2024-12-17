@@ -13,7 +13,7 @@ namespace ExampleAPI.Plugins.ExamplePlugin
 		private string _someImportantConfigValue = "";
 
 		public ExamplePluginPlugin() : base(
-			new Guid("fb1c42a2-770b-4bb0-a2b6-8f6736857022"), 
+			new Guid("fb1c42a2-770b-4bb0-a2b6-8f6736857022"),
 			"Some example plugin")
 		{
 		}
