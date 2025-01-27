@@ -167,6 +167,9 @@ namespace Uni.API
 				var allowed = _plugins.Select(x => x.NameSpace).ToList();
 				allowed.Add("Uni.API.Controllers");
 				manager.FeatureProviders.Add(new CustomControllerFeatureProvider(allowed));
+			}).AddJsonOptions(options =>
+			{
+				options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
 			});
 
 			services.AddSingleton(new PluginsModel(_plugins));
