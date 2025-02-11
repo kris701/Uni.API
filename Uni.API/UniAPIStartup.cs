@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using System.Text.Json;
 using Uni.API.Exceptions;
 using Uni.API.Models;
 using Uni.API.Services;
@@ -170,6 +171,7 @@ namespace Uni.API
 			}).AddJsonOptions(options =>
 			{
 				options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+				options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 			});
 
 			services.AddSingleton(new PluginsModel(_plugins));
