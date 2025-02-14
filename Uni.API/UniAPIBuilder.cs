@@ -15,14 +15,15 @@ namespace Uni.API
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="args"></param>
+		/// <param name="configFile"></param>
 		/// <returns></returns>
-		public static IHostBuilder CreateUniAPIBuilder<T>(string[] args) where T : UniAPIStartup
+		public static IHostBuilder CreateUniAPIBuilder<T>(string[] args, string configFile = "configuration.json") where T : UniAPIStartup
 		{
 			var builder = Host.CreateDefaultBuilder(args);
 			builder.ConfigureAppConfiguration((context, config) =>
 			{
-				if (File.Exists("configuration.json"))
-					config.AddJsonFile("configuration.json");
+				if (File.Exists(configFile))
+					config.AddJsonFile(configFile);
 			});
 			builder.ConfigureWebHostDefaults(webBuilder =>
 			{
