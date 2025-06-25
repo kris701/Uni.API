@@ -159,7 +159,17 @@ namespace Uni.API
 			services.AddControllers(options =>
 			{
 				options.Filters.Add(new BaseExceptionFilter());
-				options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(_ => "The field is required");
+				options.ModelBindingMessageProvider.SetValueIsInvalidAccessor((x) => $"The value '{x}' is invalid.");
+				options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor((x) => $"The field {x} must be a number.");
+				options.ModelBindingMessageProvider.SetMissingBindRequiredValueAccessor((x) => $"A value for the '{x}' property was not provided.");
+				options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor((x, y) => $"The value '{x}' is not valid for {y}.");
+				options.ModelBindingMessageProvider.SetMissingKeyOrValueAccessor(() => "A value is required.");
+				options.ModelBindingMessageProvider.SetMissingRequestBodyRequiredValueAccessor(() => "A non-empty request body is required.");
+				options.ModelBindingMessageProvider.SetNonPropertyAttemptedValueIsInvalidAccessor((x) => $"The value '{x}' is not valid.");
+				options.ModelBindingMessageProvider.SetNonPropertyUnknownValueIsInvalidAccessor(() => "The value provided is invalid.");
+				options.ModelBindingMessageProvider.SetNonPropertyValueMustBeANumberAccessor(() => "The field must be a number.");
+				options.ModelBindingMessageProvider.SetUnknownValueIsInvalidAccessor((x) => $"The supplied value is invalid for {x}.");
+				options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor((x) => "Null value is invalid.");
 			}).ConfigureApplicationPartManager(manager =>
 			{
 				var existing = manager.FeatureProviders.OfType<ControllerFeatureProvider>().FirstOrDefault();
