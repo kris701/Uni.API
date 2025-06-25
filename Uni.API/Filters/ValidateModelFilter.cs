@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Collections.Generic;
@@ -17,10 +18,15 @@ namespace Uni.API.Filters
 		{
 			if (context.ModelState.IsValid == false)
 			{
-				var response = new ErrorModel(
-					400,
+				var errorList = context.ModelState.ToDictionary(
+					kvp => kvp.Key,
+					kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+				);
+
+				var response = new ErrorDictModel(
+					StatusCodes.Status422UnprocessableEntity,
 					"One or more validation errors occured",
-					context.ModelState.ToString());
+					errorList);
 				context.Result = new BadRequestObjectResult(response);
 			}
 		}
