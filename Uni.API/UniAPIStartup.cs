@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 using System.Text.Json;
-using Uni.API.Exceptions;
+using Uni.API.Filters;
 using Uni.API.Models;
 using Uni.API.Services;
 
@@ -156,9 +157,11 @@ namespace Uni.API
 		/// <param name="services"></param>
 		public virtual void ConfigureServices(IServiceCollection services)
 		{
+			services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
 			services.AddControllers(options =>
 			{
 				options.Filters.Add(new BaseExceptionFilter());
+				options.Filters.Add(new ValidateModelFilter());
 				options.ModelBindingMessageProvider.SetValueIsInvalidAccessor((x) => $"The value '{x}' is invalid.");
 				options.ModelBindingMessageProvider.SetValueMustBeANumberAccessor((x) => $"The field {x} must be a number.");
 				options.ModelBindingMessageProvider.SetMissingBindRequiredValueAccessor((x) => $"A value for the '{x}' property was not provided.");
