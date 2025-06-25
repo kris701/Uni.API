@@ -22,11 +22,15 @@ namespace Uni.API.Filters
 					kvp => kvp.Key,
 					kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
 				);
+				var sb = new StringBuilder();
+				foreach(var key in errorList.Keys)
+					foreach(var error in errorList[key])
+						sb.AppendLine($"[{key}] {error}");
 
-				var response = new ErrorDictModel(
+				var response = new ErrorModel(
 					StatusCodes.Status422UnprocessableEntity,
 					"One or more validation errors occured",
-					errorList);
+					sb.ToString());
 				context.Result = new BadRequestObjectResult(response);
 			}
 		}
