@@ -13,6 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@master
 
+      - uses: actions/setup-dotnet@v4
+        with:
+            dotnet-version: '9.0'
+
       - name: Install dependencies
         run: dotnet restore
 
@@ -28,6 +32,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - uses: actions/setup-dotnet@v4
+        with:
+            dotnet-version: '9.0'
           
       - name: Install dependencies
         run: dotnet restore
