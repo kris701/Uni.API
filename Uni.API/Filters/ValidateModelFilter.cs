@@ -18,10 +18,11 @@ namespace Uni.API.Filters
 	{
 		public override void OnActionExecuting(ActionExecutingContext context)
 		{
-			var props = context.ModelState.Root.RawValue.GetType().GetProperties();
-			foreach (var prop in props)
-				if (prop.HasAttribute<JsonIgnoreAttribute>())
-					context.ModelState.Remove(prop.Name);
+			foreach (var arg in context.ActionArguments.Values)
+				if (arg != null)
+					foreach (var prop in arg.GetType().GetProperties())
+						if (prop.HasAttribute<JsonIgnoreAttribute>())
+							context.ModelState.Remove(prop.Name);
 
 			if (context.ModelState.IsValid == false)
 			{
