@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Uni.API.Models;
 
@@ -16,6 +18,11 @@ namespace Uni.API.Filters
 	{
 		public override void OnActionExecuting(ActionExecutingContext context)
 		{
+			var props = context.ModelState.Root.RawValue.GetType().GetProperties();
+			foreach (var prop in props)
+				if (prop.HasAttribute<JsonIgnoreAttribute>())
+					context.ModelState.Remove(prop.Name);
+
 			if (context.ModelState.IsValid == false)
 			{
 				var errorList = context.ModelState.ToDictionary(
