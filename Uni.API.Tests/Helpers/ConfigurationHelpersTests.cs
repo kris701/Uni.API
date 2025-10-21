@@ -72,5 +72,39 @@ namespace Uni.API.Tests.Helpers
 			// ASSERT
 			Assert.AreEqual(expected, value);
 		}
+
+		[TestMethod]
+		[DataRow("TestFiles/input1.json", "someconfig2", "id", "43b8b49a-fd22-411a-a818-054bca136b34")]
+		public void Can_GetSectionKeyValue_Guid(string inputFile, string section, string key, string expectedStr)
+		{
+			// ARRANGE
+			var expected = new Guid(expectedStr);
+			var config = new ConfigurationBuilder()
+				.AddJsonFile(inputFile)
+				.Build();
+
+			// ACT
+			var value = config.GetSectionValue<Guid>(section, key);
+
+			// ASSERT
+			Assert.AreEqual(expected, value);
+		}
+
+		[TestMethod]
+		[DataRow("TestFiles/input1.json", "someconfig2", "lst", 1)]
+		[DataRow("TestFiles/input1.json", "someconfig2", "lst2", 0)]
+		public void Can_GetSectionKeyValue_List(string inputFile, string section, string key, int expectedCount)
+		{
+			// ARRANGE
+			var config = new ConfigurationBuilder()
+				.AddJsonFile(inputFile)
+				.Build();
+
+			// ACT
+			var value = config.GetSectionValue<List<string>>(section, key);
+
+			// ASSERT
+			Assert.AreEqual(expectedCount, value.Count);
+		}
 	}
 }

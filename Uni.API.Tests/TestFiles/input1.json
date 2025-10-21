@@ -4,6 +4,11 @@
     "some": 212313
   },
   "someconfig2": {
-    "works": false
+    "works": false,
+    "id": "43b8b49a-fd22-411a-a818-054bca136b34",
+    "lst": [
+      "abc"
+    ],
+    "lst2": []
   }
 }

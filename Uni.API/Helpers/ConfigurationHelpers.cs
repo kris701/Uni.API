@@ -29,7 +29,19 @@ namespace Uni.API.Helpers
 			if (!configuration.DoesSectionExist(section))
 				throw new Exception($"Section '{section}' was not set in IConfiguration!");
 			var valueSection = configuration.GetSection(section).GetSection(key);
-			if (!valueSection.Exists())
+			var valueSectionExists = valueSection.Exists();
+
+			// Just return an empty list, dont throw
+			var tType = typeof(T);
+			if (!valueSectionExists && tType.GetGenericTypeDefinition() == typeof(List<>))
+			{
+				var emptyList = Activator.CreateInstance(tType);
+				if (emptyList == null)
+					throw new Exception($"'{key}' for section '{section}' was an empty list, however the instantiation of it created a null object!");
+				return (dynamic)emptyList;
+			}
+
+			if (!valueSectionExists)
 				throw new Exception($"'{key}' for section '{section}' was not set in IConfiguration!");
 
 			var value = valueSection.Get<T>();
