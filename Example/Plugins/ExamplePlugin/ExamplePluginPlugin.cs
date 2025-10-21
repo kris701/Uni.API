@@ -1,6 +1,7 @@
 ﻿using ExampleAPI.Plugins.ExamplePlugin.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Uni.API.Helpers;
 using Uni.API.Models;
 
 namespace ExampleAPI.Plugins.ExamplePlugin
@@ -21,7 +22,7 @@ namespace ExampleAPI.Plugins.ExamplePlugin
 		public override void ConfigureConfiguration(IConfiguration configuration)
 		{
 			// Do whatever configuration you need
-			_someImportantConfigValue = configuration.GetSection("ExamplePluginSetup").GetValue<string>("value1");
+			_someImportantConfigValue = configuration.GetSectionValue<string>("ExamplePluginSetup", "value1");
 			base.ConfigureConfiguration(configuration);
 		}
 

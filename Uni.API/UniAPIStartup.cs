@@ -105,7 +105,7 @@ namespace Uni.API
 
 			// Instantiate Plugins
 			_logger.LogInformation("Instantiating all plugins...");
-			List<Type> plugins = new List<Type>();
+			var plugins = new List<Type>();
 			foreach (var nameSpace in PluginNamespaces)
 				plugins.AddRange(GetTypesInNamespace(nameSpace));
 			plugins.RemoveAll(x => !x.IsAssignableTo(typeof(IUniAPIPlugin)));
@@ -123,7 +123,7 @@ namespace Uni.API
 			_logger.LogInformation($"A total of {_plugins.Count} plugins instantiated");
 
 			_logger.LogInformation($"Checking if plugin requirements are present");
-			for (int i = 0; i < _plugins.Count; i++)
+			for (var i = 0; i < _plugins.Count; i++)
 			{
 				var plugin = _plugins[i];
 				if (plugin.Requires.Count > 0)

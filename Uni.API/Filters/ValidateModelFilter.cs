@@ -2,14 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Uni.API.Models;
 
 namespace Uni.API.Filters
@@ -31,8 +25,8 @@ namespace Uni.API.Filters
 					kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
 				);
 				var sb = new StringBuilder();
-				foreach(var key in errorList.Keys)
-					foreach(var error in errorList[key])
+				foreach (var key in errorList.Keys)
+					foreach (var error in errorList[key])
 						sb.AppendLine($"[{key}] {error}");
 
 				var response = new ErrorModel(

@@ -1,0 +1,9 @@
+{
+  "someconfig": {
+    "test": "a",
+    "some": 212313
+  },
+  "someconfig2": {
+    "works": false
+  }
+}
