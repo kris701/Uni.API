@@ -46,7 +46,17 @@ namespace Uni.API.Helpers
 
 			var value = valueSection.Get<T>();
 			if (value == null)
-				throw new Exception($"The key value was null for the key '{key}' and section '{section}' in IConfiguration!");
+			{
+				if (tType.IsGenericType && tType.GetGenericTypeDefinition() == typeof(List<>))
+				{
+					var emptyList = Activator.CreateInstance(tType);
+					if (emptyList == null)
+						throw new Exception($"'{key}' for section '{section}' was an empty list, however the instantiation of it created a null object!");
+					return (dynamic)emptyList;
+				}
+				else
+					throw new Exception($"The key value was null for the key '{key}' and section '{section}' in IConfiguration!");
+			}
 			return value;
 		}
 	}
