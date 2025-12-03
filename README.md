@@ -10,7 +10,7 @@
 ![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/m/kris701/Uni.API)
 ![Static Badge](https://img.shields.io/badge/Platform-Windows-blue)
 ![Static Badge](https://img.shields.io/badge/Platform-Linux-blue)
-![Static Badge](https://img.shields.io/badge/Framework-dotnet--8.0-green)
+![Static Badge](https://img.shields.io/badge/Framework-dotnet--10.0-green)
 
 # Uni.API
 

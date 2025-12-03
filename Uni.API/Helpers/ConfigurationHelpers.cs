@@ -33,7 +33,7 @@ namespace Uni.API.Helpers
 
 			// Just return an empty list, dont throw
 			var tType = typeof(T);
-			if (!valueSectionExists && tType.GetGenericTypeDefinition() == typeof(List<>))
+			if (!valueSectionExists && tType.IsGenericType && tType.GetGenericTypeDefinition() == typeof(List<>))
 			{
 				var emptyList = Activator.CreateInstance(tType);
 				if (emptyList == null)
