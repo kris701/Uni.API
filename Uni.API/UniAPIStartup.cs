@@ -96,7 +96,12 @@ namespace Uni.API
 			toLoad.RemoveAll(x => !toUse.Any(y => x.Name.EndsWith($"{y}.dll")));
 			var orderedToLoad = new List<FileInfo>();
 			foreach (var target in toUse)
-				orderedToLoad.Add(toLoad.First(x => x.Name.EndsWith($"{target}.dll")));
+			{
+				var assemblyTarget = toLoad.FirstOrDefault(x => x.Name.EndsWith($"{target}.dll"));
+				if (assemblyTarget == null)
+					throw new Exception($"Could not find assembly ending with '{target}.dll'!");
+				orderedToLoad.Add(assemblyTarget);
+			}
 
 			_logger.LogInformation($"A total of {orderedToLoad.Count} plugin assemblies to load.");
 			orderedToLoad.ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path.FullName))));
