@@ -51,7 +51,28 @@ namespace Uni.API
 				builder.AddEventSourceLogger();
 			});
 			_logger = loggerFactory.CreateLogger<UniAPIStartup>();
-			LoadPlugins(Configuration);
+			LoadPlugins(Configuration, new List<IUniAPIPlugin>());
+		}
+
+		/// <summary>
+		/// Constructor with override for plugin namespaces and static plugins
+		/// </summary>
+		/// <param name="configuration"></param>
+		/// <param name="pluginNamespace"></param>
+		/// <param name="staticPlugins"></param>
+		public UniAPIStartup(IConfiguration configuration, List<string> pluginNamespace, List<IUniAPIPlugin> staticPlugins)
+		{
+			_plugins = new List<IUniAPIPlugin>();
+			Configuration = configuration;
+			PluginNamespaces = pluginNamespace;
+			using var loggerFactory = LoggerFactory.Create(builder =>
+			{
+				builder.SetMinimumLevel(LogLevel.Information);
+				builder.AddConsole();
+				builder.AddEventSourceLogger();
+			});
+			_logger = loggerFactory.CreateLogger<UniAPIStartup>();
+			LoadPlugins(Configuration, staticPlugins);
 		}
 
 		/// <summary>
@@ -63,7 +84,7 @@ namespace Uni.API
 		{
 		}
 
-		private void LoadPlugins(IConfiguration configuration)
+		private void LoadPlugins(IConfiguration configuration, List<IUniAPIPlugin> staticPlugins)
 		{
 			_logger.LogInformation("Getting target plugin list...");
 			var toUse = configuration.GetSection("UsePlugins").Get<List<string>>();
