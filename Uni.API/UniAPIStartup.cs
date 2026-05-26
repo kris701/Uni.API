@@ -51,7 +51,7 @@ namespace Uni.API
 				builder.AddEventSourceLogger();
 			});
 			_logger = loggerFactory.CreateLogger<UniAPIStartup>();
-			LoadPlugins(Configuration, new List<IUniAPIPlugin>());
+			LoadPlugins(Configuration);
 		}
 
 		/// <summary>
@@ -62,7 +62,7 @@ namespace Uni.API
 		/// <param name="staticPlugins"></param>
 		public UniAPIStartup(IConfiguration configuration, List<string> pluginNamespace, List<IUniAPIPlugin> staticPlugins)
 		{
-			_plugins = new List<IUniAPIPlugin>();
+			_plugins = staticPlugins;
 			Configuration = configuration;
 			PluginNamespaces = pluginNamespace;
 			using var loggerFactory = LoggerFactory.Create(builder =>
@@ -72,7 +72,7 @@ namespace Uni.API
 				builder.AddEventSourceLogger();
 			});
 			_logger = loggerFactory.CreateLogger<UniAPIStartup>();
-			LoadPlugins(Configuration, staticPlugins);
+			LoadPlugins(Configuration);
 		}
 
 		/// <summary>
@@ -84,7 +84,7 @@ namespace Uni.API
 		{
 		}
 
-		private void LoadPlugins(IConfiguration configuration, List<IUniAPIPlugin> staticPlugins)
+		private void LoadPlugins(IConfiguration configuration)
 		{
 			_logger.LogInformation("Getting target plugin list...");
 			var toUse = configuration.GetSection("UsePlugins").Get<List<string>>();
