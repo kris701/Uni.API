@@ -93,60 +93,63 @@ namespace Uni.API
 			if (toUse.Count == 0)
 			{
 				_logger.LogWarning("No plugins is set to load");
-				return;
 			}
-
-			_logger.LogInformation($"Plugin namespaces to search ({PluginNamespaces.Count} in total):");
-			foreach (var nameSpace in PluginNamespaces)
-				_logger.LogInformation($"\t{nameSpace}");
-
-			_logger.LogInformation("Getting all assemblies in current domain...");
-			var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
-			var loadedPaths = loadedAssemblies.Select(a => a.Location).ToArray();
-			_logger.LogInformation($"A total of {loadedAssemblies.Count} assemblies exist");
-
-			_logger.LogInformation("Removing all from the list that is not in the plugin namespace...");
-			var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll").ToList();
-			_logger.LogInformation($"A total of {referencedPaths.Count} assemblies referenced");
-			referencedPaths.RemoveAll(x => !PluginNamespaces.Any(y => x.Contains(y)));
-			_logger.LogInformation($"A total of {referencedPaths.Count} assemblies referenced that is within a plugin namespace.");
-			var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).Select(x => new FileInfo(x)).ToList();
-			_logger.LogInformation($"A total of {toLoad.Count} plugin assemblies to load");
-
-			_logger.LogInformation("Removing all from the list that is not in the plugin list...");
-			toLoad.RemoveAll(x => !toUse.Any(y => x.Name.EndsWith($"{y}.dll")));
-			var orderedToLoad = new List<FileInfo>();
-			foreach (var target in toUse)
+			else
 			{
-				var assemblyTarget = toLoad.FirstOrDefault(x => x.Name.EndsWith($"{target}.dll"));
-				if (assemblyTarget == null)
-					throw new Exception($"Could not find assembly ending with '{target}.dll'!");
-				orderedToLoad.Add(assemblyTarget);
-			}
+				_logger.LogInformation($"Plugin namespaces to search ({PluginNamespaces.Count} in total):");
+				foreach (var nameSpace in PluginNamespaces)
+					_logger.LogInformation($"\t{nameSpace}");
 
-			_logger.LogInformation($"A total of {orderedToLoad.Count} plugin assemblies to load.");
-			orderedToLoad.ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path.FullName))));
-			if (toUse.Count != orderedToLoad.Count)
-				_logger.LogWarning("Not all targeted plugins could be found!");
+				_logger.LogInformation("Getting all assemblies in current domain...");
+				var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+				var loadedPaths = loadedAssemblies.Select(a => a.Location).ToArray();
+				_logger.LogInformation($"A total of {loadedAssemblies.Count} assemblies exist");
 
-			// Instantiate Plugins
-			_logger.LogInformation("Instantiating all plugins...");
-			var plugins = new List<Type>();
-			foreach (var nameSpace in PluginNamespaces)
-				plugins.AddRange(GetTypesInNamespace(nameSpace));
-			plugins.RemoveAll(x => !x.IsAssignableTo(typeof(IUniAPIPlugin)));
-			foreach (var type in plugins)
-			{
-				if (type.Namespace == null)
-					continue;
-				if (Activator.CreateInstance(type) is IUniAPIPlugin plugin)
+				_logger.LogInformation("Removing all from the list that is not in the plugin namespace...");
+				var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll").ToList();
+				_logger.LogInformation($"A total of {referencedPaths.Count} assemblies referenced");
+				referencedPaths.RemoveAll(x => !PluginNamespaces.Any(y => x.Contains(y)));
+				_logger.LogInformation($"A total of {referencedPaths.Count} assemblies referenced that is within a plugin namespace.");
+				var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).Select(x => new FileInfo(x)).ToList();
+				_logger.LogInformation($"A total of {toLoad.Count} plugin assemblies to load");
+
+				_logger.LogInformation("Removing all from the list that is not in the plugin list...");
+				toLoad.RemoveAll(x => !toUse.Any(y => x.Name.EndsWith($"{y}.dll")));
+				var orderedToLoad = new List<FileInfo>();
+				foreach (var target in toUse)
 				{
-					plugin.NameSpace = type.Namespace;
-					_plugins.Add(plugin);
+					var assemblyTarget = toLoad.FirstOrDefault(x => x.Name.EndsWith($"{target}.dll"));
+					if (assemblyTarget == null)
+						throw new Exception($"Could not find assembly ending with '{target}.dll'!");
+					orderedToLoad.Add(assemblyTarget);
 				}
-			}
 
-			_logger.LogInformation($"A total of {_plugins.Count} plugins instantiated");
+				_logger.LogInformation($"A total of {orderedToLoad.Count} plugin assemblies to load.");
+				orderedToLoad.ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path.FullName))));
+				if (toUse.Count != orderedToLoad.Count)
+					_logger.LogWarning("Not all targeted plugins could be found!");
+
+				// Instantiate Plugins
+				_logger.LogInformation("Instantiating all plugins...");
+				var plugins = new List<Type>();
+				foreach (var nameSpace in PluginNamespaces)
+					plugins.AddRange(GetTypesInNamespace(nameSpace));
+				plugins.RemoveAll(x => !x.IsAssignableTo(typeof(IUniAPIPlugin)));
+				var newPlugins = 0;
+				foreach (var type in plugins)
+				{
+					if (type.Namespace == null)
+						continue;
+					if (Activator.CreateInstance(type) is IUniAPIPlugin plugin)
+					{
+						plugin.NameSpace = type.Namespace;
+						_plugins.Add(plugin);
+						newPlugins++;
+					}
+				}
+
+				_logger.LogInformation($"A total of {newPlugins} plugins instantiated");
+			}
 
 			_logger.LogInformation($"Checking if plugin requirements are present");
 			for (var i = 0; i < _plugins.Count; i++)
