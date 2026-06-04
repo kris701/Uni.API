@@ -28,7 +28,7 @@ namespace ExampleAPI
 			base.ConfigureServices(services);
 		}
 
-		public override void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+		public override void Configure(WebApplication app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
 		{
 			app.UseSwagger();
 			app.UseSwaggerUI();

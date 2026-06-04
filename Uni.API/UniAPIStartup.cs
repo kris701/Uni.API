@@ -243,7 +243,7 @@ namespace Uni.API
 		/// <param name="app"></param>
 		/// <param name="env"></param>
 		/// <param name="loggerFactory"></param>
-		public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+		public virtual void Configure(WebApplication app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
 		{
 			app.UseHttpsRedirection();
 
