@@ -30,8 +30,10 @@ namespace Uni.API
 		/// List of plugin namespaces to look for plugins in.
 		/// </summary>
 		public List<string> PluginNamespaces { get; set; }
-
-		private readonly List<IUniAPIPlugin> _plugins;
+		/// <summary>
+		/// The list of plugins
+		/// </summary>
+		public List<IUniAPIPlugin> Plugins { get; set; }
 		private readonly ILogger<UniAPIStartup> _logger;
 
 		/// <summary>
@@ -41,7 +43,7 @@ namespace Uni.API
 		/// <param name="pluginNamespace"></param>
 		public UniAPIStartup(IConfiguration configuration, List<string> pluginNamespace)
 		{
-			_plugins = new List<IUniAPIPlugin>();
+			Plugins = new List<IUniAPIPlugin>();
 			Configuration = configuration;
 			PluginNamespaces = pluginNamespace;
 			using var loggerFactory = LoggerFactory.Create(builder =>
@@ -61,7 +63,7 @@ namespace Uni.API
 		/// <param name="staticPlugins"></param>
 		public UniAPIStartup(IConfiguration configuration, List<string> pluginNamespace, List<IUniAPIPlugin> staticPlugins)
 		{
-			_plugins = staticPlugins;
+			Plugins = staticPlugins;
 			Configuration = configuration;
 			PluginNamespaces = pluginNamespace;
 			using var loggerFactory = LoggerFactory.Create(builder =>
@@ -146,7 +148,7 @@ namespace Uni.API
 					if (Activator.CreateInstance(type) is IUniAPIPlugin plugin)
 					{
 						plugin.NameSpace = type.Namespace;
-						_plugins.Add(plugin);
+						Plugins.Add(plugin);
 						newPlugins++;
 					}
 				}
@@ -155,12 +157,12 @@ namespace Uni.API
 			}
 
 			_logger.LogInformation($"Checking if plugin requirements are present");
-			for (var i = 0; i < _plugins.Count; i++)
+			for (var i = 0; i < Plugins.Count; i++)
 			{
-				var plugin = _plugins[i];
+				var plugin = Plugins[i];
 				if (plugin.Requires.Count > 0)
 				{
-					var previous = _plugins.GetRange(0, i);
+					var previous = Plugins.GetRange(0, i);
 					if (!plugin.Requires.All(x => previous.Any(y => y.ID == x)))
 						throw new Exception($"Bad load order detected! Plugin '{plugin.Name}' is missing required plugins: {string.Join(',', plugin.Requires.Where(x => !previous.Any(y => y.ID == x)))}! Reorder the plugins so that the required plugins are loaded before this plugin.");
 				}
@@ -168,7 +170,7 @@ namespace Uni.API
 
 			// Allow the plugins to configure themselfs
 			_logger.LogInformation($"Configuring all plugins");
-			foreach (var plugin in _plugins)
+			foreach (var plugin in Plugins)
 				plugin.ConfigureConfiguration(configuration);
 			_logger.LogInformation($"Uni API plugin loading complete!");
 		}
@@ -210,7 +212,7 @@ namespace Uni.API
 				var existing = manager.FeatureProviders.OfType<ControllerFeatureProvider>().FirstOrDefault();
 				if (existing != null)
 					manager.FeatureProviders.Remove(existing);
-				var allowed = _plugins.Select(x => x.NameSpace).ToList();
+				var allowed = Plugins.Select(x => x.NameSpace).ToList();
 				allowed.Add("Uni.API.Controllers");
 				manager.FeatureProviders.Add(new CustomControllerFeatureProvider(allowed));
 			}).AddJsonOptions(options =>
@@ -219,14 +221,14 @@ namespace Uni.API
 				options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 			});
 
-			services.AddSingleton(new PluginsModel(_plugins));
+			services.AddSingleton(new PluginsModel(Plugins));
 
 			ConfigurePlugins(services);
 		}
 
 		internal void ConfigurePlugins(IServiceCollection services)
 		{
-			foreach (var plugin in _plugins)
+			foreach (var plugin in Plugins)
 				plugin.ConfigureServices(services);
 		}
 
