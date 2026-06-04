@@ -51,7 +51,6 @@ namespace Uni.API
 				builder.AddEventSourceLogger();
 			});
 			_logger = loggerFactory.CreateLogger<UniAPIStartup>();
-			LoadPlugins(Configuration);
 		}
 
 		/// <summary>
@@ -72,7 +71,6 @@ namespace Uni.API
 				builder.AddEventSourceLogger();
 			});
 			_logger = loggerFactory.CreateLogger<UniAPIStartup>();
-			LoadPlugins(Configuration);
 		}
 
 		/// <summary>
@@ -84,7 +82,12 @@ namespace Uni.API
 		{
 		}
 
-		private void LoadPlugins(IConfiguration configuration)
+		/// <summary>
+		/// Load all registered plugins
+		/// </summary>
+		/// <param name="configuration"></param>
+		/// <exception cref="Exception"></exception>
+		public void LoadPlugins(IConfiguration configuration)
 		{
 			_logger.LogInformation("Getting target plugin list...");
 			var toUse = configuration.GetSection("UsePlugins").Get<List<string>>();
