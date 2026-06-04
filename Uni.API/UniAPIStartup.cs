@@ -23,65 +23,27 @@ namespace Uni.API
 		/// </summary>
 		public static string DefaultPluginNamespace = "Uni.API.Plugins";
 		/// <summary>
-		/// Configuration for the API.
-		/// </summary>
-		public IConfiguration Configuration { get; }
-		/// <summary>
 		/// List of plugin namespaces to look for plugins in.
 		/// </summary>
-		public List<string> PluginNamespaces { get; set; }
+		public List<string> PluginNamespaces { get; set; } = new List<string>();
 		/// <summary>
 		/// The list of plugins
 		/// </summary>
-		public List<IUniAPIPlugin> Plugins { get; set; }
+		public List<IUniAPIPlugin> Plugins { get; set; } = new List<IUniAPIPlugin>();
 		private readonly ILogger<UniAPIStartup> _logger;
-
-		/// <summary>
-		/// Constructor with override for plugin namespaces
-		/// </summary>
-		/// <param name="configuration"></param>
-		/// <param name="pluginNamespace"></param>
-		public UniAPIStartup(IConfiguration configuration, List<string> pluginNamespace)
-		{
-			Plugins = new List<IUniAPIPlugin>();
-			Configuration = configuration;
-			PluginNamespaces = pluginNamespace;
-			using var loggerFactory = LoggerFactory.Create(builder =>
-			{
-				builder.SetMinimumLevel(LogLevel.Information);
-				builder.AddConsole();
-				builder.AddEventSourceLogger();
-			});
-			_logger = loggerFactory.CreateLogger<UniAPIStartup>();
-		}
-
-		/// <summary>
-		/// Constructor with override for plugin namespaces and static plugins
-		/// </summary>
-		/// <param name="configuration"></param>
-		/// <param name="pluginNamespace"></param>
-		/// <param name="staticPlugins"></param>
-		public UniAPIStartup(IConfiguration configuration, List<string> pluginNamespace, List<IUniAPIPlugin> staticPlugins)
-		{
-			Plugins = staticPlugins;
-			Configuration = configuration;
-			PluginNamespaces = pluginNamespace;
-			using var loggerFactory = LoggerFactory.Create(builder =>
-			{
-				builder.SetMinimumLevel(LogLevel.Information);
-				builder.AddConsole();
-				builder.AddEventSourceLogger();
-			});
-			_logger = loggerFactory.CreateLogger<UniAPIStartup>();
-		}
 
 		/// <summary>
 		/// Main constructor
 		/// </summary>
-		/// <param name="configuration"></param>
-		[ActivatorUtilitiesConstructor]
-		public UniAPIStartup(IConfiguration configuration) : this(configuration, new List<string>() { DefaultPluginNamespace })
+		public UniAPIStartup()
 		{
+			using var loggerFactory = LoggerFactory.Create(builder =>
+			{
+				builder.SetMinimumLevel(LogLevel.Information);
+				builder.AddConsole();
+				builder.AddEventSourceLogger();
+			});
+			_logger = loggerFactory.CreateLogger<UniAPIStartup>();
 		}
 
 		/// <summary>
@@ -242,17 +204,13 @@ namespace Uni.API
 		/// </summary>
 		/// <param name="app"></param>
 		/// <param name="env"></param>
-		/// <param name="loggerFactory"></param>
-		public virtual void Configure(WebApplication app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+		public virtual void Configure(WebApplication app, IWebHostEnvironment env)
 		{
 			app.UseHttpsRedirection();
 
 			app.UseRouting();
 
-			app.UseEndpoints(endpoints =>
-			{
-				endpoints.MapControllers();
-			});
+			app.MapControllers();
 		}
 	}
 }

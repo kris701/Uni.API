@@ -8,14 +8,13 @@ namespace ExampleAPI
 	/// </summary>
 	public class SampleStartup : UniAPIStartup
 	{
-		public SampleStartup(IConfiguration configuration) : base(
-			configuration,
-			new List<string>()
+		public SampleStartup() : base()
+		{
+			PluginNamespaces = new List<string>()
 			{
 				DefaultPluginNamespace,
 				"ExampleAPI.Plugins"
-			})
-		{
+			};
 		}
 
 		public override void ConfigureServices(IServiceCollection services)
@@ -28,12 +27,12 @@ namespace ExampleAPI
 			base.ConfigureServices(services);
 		}
 
-		public override void Configure(WebApplication app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+		public override void Configure(WebApplication app, IWebHostEnvironment env)
 		{
 			app.UseSwagger();
 			app.UseSwaggerUI();
 
-			base.Configure(app, env, loggerFactory);
+			base.Configure(app, env);
 		}
 	}
 }

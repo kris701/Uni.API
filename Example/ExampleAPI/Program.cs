@@ -6,7 +6,7 @@ namespace ExampleAPI
 	{
 		public static void Main(string[] args)
 		{
-			UniAPIBuilder.CreateUniAPIBuilder<SampleStartup>(args).Build().Run();
+			UniAPIBuilder.CreateUniAPIApplication<SampleStartup>(args).Run();
 		}
 	}
 }
