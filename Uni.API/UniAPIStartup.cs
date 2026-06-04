@@ -88,13 +88,18 @@ namespace Uni.API
 		/// Load all registered plugins
 		/// </summary>
 		/// <param name="configuration"></param>
+		/// <param name="additionalPlugins"></param>
 		/// <exception cref="Exception"></exception>
-		public void LoadPlugins(IConfiguration configuration)
+		public void LoadPlugins(IConfiguration configuration, List<string>? additionalPlugins = null)
 		{
 			_logger.LogInformation("Getting target plugin list...");
-			var toUse = configuration.GetSection("UsePlugins").Get<List<string>>();
-			if (toUse == null)
-				toUse = new List<string>();
+			var toUse = new List<string>();
+			if (additionalPlugins != null)
+				toUse.AddRange(additionalPlugins);
+			var pluginsToUse = configuration.GetSection("UsePlugins").Get<List<string>>();
+			if (pluginsToUse != null)
+				toUse.AddRange(pluginsToUse);
+
 			if (toUse.Count == 0)
 			{
 				_logger.LogWarning("No plugins is set to load");
