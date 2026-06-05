@@ -156,7 +156,8 @@ namespace Uni.API
 		/// Base implementation to configure services
 		/// </summary>
 		/// <param name="services"></param>
-		public virtual void ConfigureServices(IServiceCollection services)
+		/// <param name="configuration"></param>
+		public virtual void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
 		{
 			services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
 			services.AddControllers(options =>

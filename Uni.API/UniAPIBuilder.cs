@@ -26,7 +26,7 @@ namespace Uni.API
 
 			startup.LoadPlugins(builder.Configuration);
 
-			startup.ConfigureServices(builder.Services);
+			startup.ConfigureServices(builder.Services, builder.Configuration);
 
 			var app = builder.Build();
 

@@ -17,14 +17,14 @@ namespace ExampleAPI
 			};
 		}
 
-		public override void ConfigureServices(IServiceCollection services)
+		public override void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
 		{
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "Example API", Version = "v1" });
 			});
 
-			base.ConfigureServices(services);
+			base.ConfigureServices(services, configuration);
 		}
 
 		public override void Configure(WebApplication app, IWebHostEnvironment env)
