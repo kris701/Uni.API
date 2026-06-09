@@ -52,7 +52,7 @@ namespace Uni.API
 		/// <param name="configuration"></param>
 		/// <param name="additionalPlugins"></param>
 		/// <exception cref="Exception"></exception>
-		public void LoadPlugins(IConfiguration configuration, List<string>? additionalPlugins = null)
+		public virtual void LoadPlugins(IConfiguration configuration, List<string>? additionalPlugins = null)
 		{
 			_logger.LogInformation("Getting target plugin list...");
 			var toUse = new List<string>();
