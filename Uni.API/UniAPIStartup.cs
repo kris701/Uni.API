@@ -31,19 +31,19 @@ namespace Uni.API
 		/// </summary>
 		public List<IUniAPIPlugin> Plugins { get; set; } = new List<IUniAPIPlugin>();
 		private readonly ILogger<UniAPIStartup> _logger;
+		private readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>
+		{
+			builder.SetMinimumLevel(LogLevel.Information);
+			builder.AddConsole();
+			builder.AddEventSourceLogger();
+		});
 
 		/// <summary>
 		/// Main constructor
 		/// </summary>
 		public UniAPIStartup()
 		{
-			using var loggerFactory = LoggerFactory.Create(builder =>
-			{
-				builder.SetMinimumLevel(LogLevel.Information);
-				builder.AddConsole();
-				builder.AddEventSourceLogger();
-			});
-			_logger = loggerFactory.CreateLogger<UniAPIStartup>();
+			_logger = _loggerFactory.CreateLogger<UniAPIStartup>();
 		}
 
 		/// <summary>
@@ -138,7 +138,10 @@ namespace Uni.API
 			// Allow the plugins to configure themselfs
 			_logger.LogInformation($"Configuring all plugins");
 			foreach (var plugin in Plugins)
-				plugin.ConfigureConfiguration(configuration, _logger);
+			{
+				var logger = _loggerFactory.CreateLogger(plugin.GetType());
+				plugin.ConfigureConfiguration(configuration, logger);
+			}
 			_logger.LogInformation($"Uni API plugin loading complete!");
 		}
 
@@ -197,7 +200,10 @@ namespace Uni.API
 		internal void ConfigurePlugins(IServiceCollection services)
 		{
 			foreach (var plugin in Plugins)
-				plugin.ConfigureServices(services, _logger);
+			{
+				var logger = _loggerFactory.CreateLogger(plugin.GetType());
+				plugin.ConfigureServices(services, logger);
+			}
 		}
 
 		/// <summary>
