@@ -138,7 +138,7 @@ namespace Uni.API
 			// Allow the plugins to configure themselfs
 			_logger.LogInformation($"Configuring all plugins");
 			foreach (var plugin in Plugins)
-				plugin.ConfigureConfiguration(configuration);
+				plugin.ConfigureConfiguration(configuration, _logger);
 			_logger.LogInformation($"Uni API plugin loading complete!");
 		}
 
@@ -197,7 +197,7 @@ namespace Uni.API
 		internal void ConfigurePlugins(IServiceCollection services)
 		{
 			foreach (var plugin in Plugins)
-				plugin.ConfigureServices(services);
+				plugin.ConfigureServices(services, _logger);
 		}
 
 		/// <summary>

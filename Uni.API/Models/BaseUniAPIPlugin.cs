@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Uni.API.Models
 {
@@ -57,7 +58,8 @@ namespace Uni.API.Models
 		/// Configure the plugin with the <paramref name="configuration"/>
 		/// </summary>
 		/// <param name="configuration"></param>
-		public virtual void ConfigureConfiguration(IConfiguration configuration)
+		/// <param name="logger"></param>
+		public virtual void ConfigureConfiguration(IConfiguration configuration, ILogger logger)
 		{
 
 		}
@@ -66,7 +68,8 @@ namespace Uni.API.Models
 		/// Configure the services for the plugins
 		/// </summary>
 		/// <param name="services"></param>
-		public virtual void ConfigureServices(IServiceCollection services)
+		/// <param name="logger"></param>
+		public virtual void ConfigureServices(IServiceCollection services, ILogger logger)
 		{
 			IsActive = true;
 		}

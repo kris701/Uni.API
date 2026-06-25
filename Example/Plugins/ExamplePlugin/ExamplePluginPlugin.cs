@@ -1,6 +1,7 @@
 ﻿using ExampleAPI.Plugins.ExamplePlugin.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Uni.API.Helpers;
 using Uni.API.Models;
 
@@ -19,21 +20,21 @@ namespace ExampleAPI.Plugins.ExamplePlugin
 		{
 		}
 
-		public override void ConfigureConfiguration(IConfiguration configuration)
+		public override void ConfigureConfiguration(IConfiguration configuration, ILogger logger)
 		{
 			// Do whatever configuration you need
 			_someImportantConfigValue = configuration.GetSectionValue<string>("ExamplePluginSetup", "value1");
-			base.ConfigureConfiguration(configuration);
+			base.ConfigureConfiguration(configuration,logger);
 		}
 
-		public override void ConfigureServices(IServiceCollection services)
+		public override void ConfigureServices(IServiceCollection services, ILogger logger)
 		{
 			// Configure plugin services here
 			services.AddSingleton(new SomePluginConfiguration()
 			{
 				Value1 = _someImportantConfigValue
 			});
-			base.ConfigureServices(services);
+			base.ConfigureServices(services,logger);
 		}
 	}
 }
