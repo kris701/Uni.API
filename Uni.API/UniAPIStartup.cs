@@ -54,76 +54,130 @@ namespace Uni.API
 		/// <exception cref="Exception"></exception>
 		public virtual void LoadPlugins(IConfiguration configuration, List<string>? additionalPlugins = null)
 		{
-			_logger.LogInformation("Getting target plugin list...");
+			_logger.LogInformation($"Starting plugin loading procedure...");
+
+			var toUse = GetListOfPluginsToLoad(configuration, additionalPlugins);
+
+			if (toUse.Count == 0)
+				_logger.LogWarning("No plugins is set to load");
+			else
+			{
+				LoadTargetedPluginAssemblies(toUse);
+				InstanciatePlugins();
+			}
+
+			EnsurePluginRequirementsAreMet();
+
+			ConfigurePlugins(configuration);
+
+			_logger.LogInformation($"Uni API plugin loading complete with {Plugins.Count} plugins loaded!");
+		}
+
+		/// <summary>
+		/// Get the full list of what plugins should be loaded
+		/// </summary>
+		/// <param name="configuration"></param>
+		/// <param name="additionalPlugins"></param>
+		/// <returns></returns>
+		private List<string> GetListOfPluginsToLoad(IConfiguration configuration, List<string>? additionalPlugins = null)
+		{
+			_logger.LogDebug("Getting target plugin list...");
 			var toUse = new List<string>();
 			if (additionalPlugins != null)
 				toUse.AddRange(additionalPlugins);
 			var pluginsToUse = configuration.GetSection("UsePlugins").Get<List<string>>();
 			if (pluginsToUse != null)
 				toUse.AddRange(pluginsToUse);
+			return toUse;
+		}
 
-			if (toUse.Count == 0)
+		/// <summary>
+		/// Check through all assemblies, find the target plugin assemblies, and load them into the current app domain
+		/// </summary>
+		/// <param name="toUse"></param>
+		/// <exception cref="Exception"></exception>
+		private void LoadTargetedPluginAssemblies(List<string> toUse)
+		{
+			_logger.LogDebug($"Plugin namespaces to search ({PluginNamespaces.Count} in total):");
+			foreach (var nameSpace in PluginNamespaces)
+				_logger.LogDebug($"\t{nameSpace}");
+
+			_logger.LogDebug("Getting all assemblies in current domain...");
+			var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+			var loadedPaths = loadedAssemblies.Select(a => a.Location).ToArray();
+			_logger.LogDebug($"A total of {loadedAssemblies.Count} assemblies exist");
+
+			_logger.LogDebug("Removing all from the list that is not in the plugin namespace...");
+			var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll").ToList();
+			_logger.LogDebug($"A total of {referencedPaths.Count} assemblies referenced");
+			referencedPaths.RemoveAll(x => !PluginNamespaces.Any(y => x.Contains(y)));
+			_logger.LogDebug($"A total of {referencedPaths.Count} assemblies referenced that is within a plugin namespace.");
+			var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).Select(x => new FileInfo(x)).ToList();
+			_logger.LogDebug($"A total of {toLoad.Count} plugin assemblies to load");
+
+			_logger.LogDebug("Removing all from the list that is not in the plugin list...");
+			toLoad.RemoveAll(x => !toUse.Any(y => x.Name.EndsWith($"{y}.dll")));
+			var orderedToLoad = new List<FileInfo>();
+			foreach (var target in toUse)
 			{
-				_logger.LogWarning("No plugins is set to load");
-			}
-			else
-			{
-				_logger.LogInformation($"Plugin namespaces to search ({PluginNamespaces.Count} in total):");
-				foreach (var nameSpace in PluginNamespaces)
-					_logger.LogInformation($"\t{nameSpace}");
-
-				_logger.LogInformation("Getting all assemblies in current domain...");
-				var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
-				var loadedPaths = loadedAssemblies.Select(a => a.Location).ToArray();
-				_logger.LogInformation($"A total of {loadedAssemblies.Count} assemblies exist");
-
-				_logger.LogInformation("Removing all from the list that is not in the plugin namespace...");
-				var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll").ToList();
-				_logger.LogInformation($"A total of {referencedPaths.Count} assemblies referenced");
-				referencedPaths.RemoveAll(x => !PluginNamespaces.Any(y => x.Contains(y)));
-				_logger.LogInformation($"A total of {referencedPaths.Count} assemblies referenced that is within a plugin namespace.");
-				var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).Select(x => new FileInfo(x)).ToList();
-				_logger.LogInformation($"A total of {toLoad.Count} plugin assemblies to load");
-
-				_logger.LogInformation("Removing all from the list that is not in the plugin list...");
-				toLoad.RemoveAll(x => !toUse.Any(y => x.Name.EndsWith($"{y}.dll")));
-				var orderedToLoad = new List<FileInfo>();
-				foreach (var target in toUse)
-				{
-					var assemblyTarget = toLoad.FirstOrDefault(x => x.Name.EndsWith($"{target}.dll"));
-					if (assemblyTarget == null)
-						throw new Exception($"Could not find assembly ending with '{target}.dll'!");
-					orderedToLoad.Add(assemblyTarget);
-				}
-
-				_logger.LogInformation($"A total of {orderedToLoad.Count} plugin assemblies to load.");
-				orderedToLoad.ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path.FullName))));
-				if (toUse.Count != orderedToLoad.Count)
-					_logger.LogWarning("Not all targeted plugins could be found!");
-
-				// Instantiate Plugins
-				_logger.LogInformation("Instantiating all plugins...");
-				var plugins = new List<Type>();
-				foreach (var nameSpace in PluginNamespaces)
-					plugins.AddRange(GetTypesInNamespace(nameSpace));
-				plugins.RemoveAll(x => !x.IsAssignableTo(typeof(IUniAPIPlugin)));
-				var newPlugins = 0;
-				foreach (var type in plugins)
-				{
-					if (type.Namespace == null)
-						continue;
-					if (Activator.CreateInstance(type) is IUniAPIPlugin plugin)
-					{
-						plugin.NameSpace = type.Namespace;
-						Plugins.Add(plugin);
-						newPlugins++;
-					}
-				}
-
-				_logger.LogInformation($"A total of {newPlugins} plugins instantiated");
+				var assemblyTarget = toLoad.FirstOrDefault(x => x.Name.EndsWith($"{target}.dll"));
+				if (assemblyTarget == null)
+					throw new Exception($"Could not find assembly ending with '{target}.dll'!");
+				orderedToLoad.Add(assemblyTarget);
 			}
 
-			_logger.LogInformation($"Checking if plugin requirements are present");
+			_logger.LogDebug($"A total of {orderedToLoad.Count} plugin assemblies to load.");
+			orderedToLoad.ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path.FullName))));
+			if (toUse.Count != orderedToLoad.Count)
+				_logger.LogWarning("Not all targeted plugins could be found!");
+		}
+
+		/// <summary>
+		/// Create instances of each plugin
+		/// </summary>
+		private void InstanciatePlugins()
+		{
+			_logger.LogDebug("Instantiating all plugins...");
+			var plugins = new List<Type>();
+			foreach (var nameSpace in PluginNamespaces)
+				plugins.AddRange(GetTypesInNamespace(nameSpace));
+			plugins.RemoveAll(x => !x.IsAssignableTo(typeof(IUniAPIPlugin)));
+			var newPlugins = 0;
+			foreach (var type in plugins)
+			{
+				if (type.Namespace == null)
+					continue;
+				if (Activator.CreateInstance(type) is IUniAPIPlugin plugin)
+				{
+					plugin.NameSpace = type.Namespace;
+					Plugins.Add(plugin);
+					newPlugins++;
+				}
+			}
+			_logger.LogDebug($"A total of {newPlugins} plugins instantiated");
+		}
+
+		/// <summary>
+		/// Let each plugin run their configuration
+		/// </summary>
+		/// <param name="configuration"></param>
+		private void ConfigurePlugins(IConfiguration configuration)
+		{
+			_logger.LogDebug($"Configuring all plugins");
+			foreach (var plugin in Plugins)
+			{
+				var logger = _loggerFactory.CreateLogger(plugin.GetType());
+				plugin.ConfigureConfiguration(configuration, logger);
+			}
+		}
+
+		/// <summary>
+		/// Make sure that all the <seealso cref="IUniAPIPlugin.Requires"/> requirements are met.
+		/// </summary>
+		/// <exception cref="Exception"></exception>
+		private void EnsurePluginRequirementsAreMet()
+		{
+			_logger.LogDebug($"Checking if plugin requirements are present");
 			for (var i = 0; i < Plugins.Count; i++)
 			{
 				var plugin = Plugins[i];
@@ -134,17 +188,13 @@ namespace Uni.API
 						throw new Exception($"Bad load order detected! Plugin '{plugin.Name}' is missing required plugins: {string.Join(',', plugin.Requires.Where(x => !previous.Any(y => y.ID == x)))}! Reorder the plugins so that the required plugins are loaded before this plugin.");
 				}
 			}
-
-			// Allow the plugins to configure themselfs
-			_logger.LogInformation($"Configuring all plugins");
-			foreach (var plugin in Plugins)
-			{
-				var logger = _loggerFactory.CreateLogger(plugin.GetType());
-				plugin.ConfigureConfiguration(configuration, logger);
-			}
-			_logger.LogInformation($"Uni API plugin loading complete!");
 		}
 
+		/// <summary>
+		/// Get all types from a namespace
+		/// </summary>
+		/// <param name="nameSpace"></param>
+		/// <returns></returns>
 		private List<Type> GetTypesInNamespace(string nameSpace)
 		{
 			var total = new List<Type>();
@@ -194,10 +244,14 @@ namespace Uni.API
 
 			services.AddSingleton(new PluginsModel(Plugins));
 
-			ConfigurePlugins(services);
+			ConfigurePluginServices(services);
 		}
 
-		internal void ConfigurePlugins(IServiceCollection services)
+		/// <summary>
+		/// Let all the plugins configure themselfs
+		/// </summary>
+		/// <param name="services"></param>
+		internal void ConfigurePluginServices(IServiceCollection services)
 		{
 			foreach (var plugin in Plugins)
 			{
