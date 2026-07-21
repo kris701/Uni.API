@@ -31,6 +31,7 @@ jobs:
     name: Update NuGet 
     permissions:
       id-token: write
+      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -45,9 +46,7 @@ jobs:
           dotnet pack --configuration Release
 
       - name: Publish (Github)
-        run: |
-          dotnet nuget add source --name github "https://nuget.pkg.github.com/kris701/index.json"
-          dotnet nuget push "Uni.API/bin/Release/*.nupkg" --source "github" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+        run: dotnet nuget push "Uni.API/bin/Release/*.nupkg" --source "https://nuget.pkg.github.com/kris701/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
 
       - name: NuGet login
         uses: NuGet/login@v1
@@ -56,7 +55,7 @@ jobs:
           user: kris701
 
       - name: Publish (NuGet)
-        run: dotnet nuget push "Uni.API/bin/Release/*.nupkg" --api-key ${{ steps.login_nuget.outputs.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json" --skip-duplicate
+        run: dotnet nuget push "Uni.API/bin/Release/*.nupkg" --source "https://api.nuget.org/v3/index.json" --api-key ${{ steps.login_nuget.outputs.NUGET_API_KEY }} --skip-duplicate
         
       - name: Get Package version
         id: get-version
