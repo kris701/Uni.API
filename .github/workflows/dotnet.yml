@@ -27,10 +27,8 @@ jobs:
         with: 
           tag: 'v${{ steps.get-version.outputs.package-version }}'
 
-  # If a release already exists, just run build and testing
+  # Make a test build and run tests
   build-test:
-    needs: check-tag
-    if: needs.check-tag.outputs.releaseExists == 'true'
     runs-on: ubuntu-latest
     name: Build and Test
     steps:
@@ -46,9 +44,9 @@ jobs:
       - name: Test
         run: dotnet test --no-restore --verbosity normal
 
-  # If a release does not exist, create a new release
+  # If a release does not exist and the test build worked, create a new release
   build-release:
-    needs: check-tag
+    needs: [check-tag, build-test]
     if: needs.check-tag.outputs.releaseExists == 'false'
     runs-on: ubuntu-latest
     name: Create Release
