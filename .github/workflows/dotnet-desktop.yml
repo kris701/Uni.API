@@ -29,6 +29,8 @@ jobs:
     needs: BuildAndTest
     runs-on: ubuntu-latest
     name: Update NuGet 
+    permissions:
+      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -40,16 +42,22 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
 
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: login_nuget
+        with:
+          user: kris701
+
       - name: Build (Release) and Publish
         run: |  
           cd Uni.API
-          dotnet nuget add source --username kris701 --password ${{ secrets.API_KEY_GITHUB }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kris701/index.json"
+          dotnet nuget add source --name github "https://nuget.pkg.github.com/kris701/index.json"
           dotnet build --configuration Release
           dotnet pack --configuration Release
           cd bin
           cd Release
-          dotnet nuget push "*.nupkg" --api-key ${{ secrets.API_KEY_GITHUB }} --source "github" --skip-duplicate
-          dotnet nuget push "*.nupkg" --api-key ${{ secrets.API_KEY_NUGET }} --source "https://api.nuget.org/v3/index.json" --skip-duplicate
+          dotnet nuget push "*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "github" --skip-duplicate
+          dotnet nuget push "*.nupkg" --api-key ${{ steps.login_nuget.outputs.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json" --skip-duplicate
           cd ..
           cd ..
 
