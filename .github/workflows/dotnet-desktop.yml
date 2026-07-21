@@ -46,8 +46,8 @@ jobs:
 
       - name: Publish (Github)
         run: |
-          dotnet nuget add source --username kris701 --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kris701/index.json"
-          dotnet nuget push "Uni.API/bin/Release/*.nupkg" --source "github" --skip-duplicate
+          dotnet nuget add source --name github "https://nuget.pkg.github.com/kris701/index.json"
+          dotnet nuget push "Uni.API/bin/Release/*.nupkg" --source "github" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
 
       - name: NuGet login
         uses: NuGet/login@v1
