@@ -8,7 +8,7 @@ using Uni.API.Models;
 
 namespace Uni.API.Filters
 {
-	public class ValidateModelFilter : ActionFilterAttribute
+	internal class ValidateModelFilter : ActionFilterAttribute
 	{
 		public override void OnActionExecuting(ActionExecutingContext context)
 		{
@@ -22,12 +22,13 @@ namespace Uni.API.Filters
 			{
 				var errorList = context.ModelState.ToDictionary(
 					kvp => kvp.Key,
-					kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+					kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToArray()
 				);
 				var sb = new StringBuilder();
 				foreach (var key in errorList.Keys)
-					foreach (var error in errorList[key])
-						sb.AppendLine($"[{key}] {error}");
+					if (errorList[key] is string[] lst)
+						foreach (var error in lst)
+							sb.AppendLine($"[{key}] {error}");
 
 				var response = new ErrorModel(
 					StatusCodes.Status422UnprocessableEntity,
