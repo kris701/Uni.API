@@ -6,16 +6,36 @@ on:
       - main
 
 jobs:
-  BuildAndTest:
+  # Check if a release with the current version already exists
+  check-tag:
+    name: Check build tag
     runs-on: ubuntu-latest
-    name: Run Tests
+    outputs: 
+        releaseExists: ${{ steps.check-tag.outputs.exists }}
+        version: 'v${{ steps.get-version.outputs.package-version }}'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get Client Project version
+        id: get-version
+        uses: kzrnm/get-net-sdk-project-versions-action@v1
+        with:
+          proj-path: Uni.API/Uni.API.csproj
+
+      - uses: mukunku/tag-exists-action@v1.6.0
+        id: check-tag
+        with: 
+          tag: 'v${{ steps.get-version.outputs.package-version }}'
+
+  # If a release already exists, just run build and testing
+  build-test:
+    needs: check-tag
+    if: needs.check-tag.outputs.releaseExists == 'true'
+    runs-on: ubuntu-latest
+    name: Build and Test
     steps:
       - name: Checkout repository
         uses: actions/checkout@master
-
-      - uses: actions/setup-dotnet@v4
-        with:
-            dotnet-version: '10.0'
 
       - name: Install dependencies
         run: dotnet restore
@@ -25,10 +45,13 @@ jobs:
 
       - name: Test
         run: dotnet test --no-restore --verbosity normal
-  BuildAndPublish:
-    needs: BuildAndTest
+
+  # If a release does not exist, create a new release
+  build-release:
+    needs: check-tag
+    if: needs.check-tag.outputs.releaseExists == 'false'
     runs-on: ubuntu-latest
-    name: Update NuGet 
+    name: Create Release
     permissions:
       id-token: write
       packages: write
@@ -57,19 +80,13 @@ jobs:
 
       - name: Publish (NuGet)
         run: dotnet nuget push "Uni.API/bin/Release/*.nupkg" --source "https://api.nuget.org/v3/index.json" --api-key ${{ steps.login_nuget.outputs.NUGET_API_KEY }} --skip-duplicate
-        
-      - name: Get Package version
-        id: get-version
-        uses: kzrnm/get-net-sdk-project-versions-action@v1
-        with:
-          proj-path: Uni.API/Uni.API.csproj
 
       - name: Generate tag
         continue-on-error: true
         uses: rickstaa/action-create-tag@v1
         id: "tag_create"
         with:
-          tag: "v${{ steps.get-version.outputs.package-version }}"
+          tag: ${{ needs.check-tag.outputs.version }}
           message: "Latest release"
 
       - name: Generate Release
@@ -77,5 +94,4 @@ jobs:
         with:
           skipIfReleaseExists: true
           artifacts: "Uni.API/bin/Release/*.nupkg"
-          tag: "v${{ steps.get-version.outputs.package-version }}"
-
+          tag: needs.check-tag.outputs.version
