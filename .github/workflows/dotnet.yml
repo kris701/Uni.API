@@ -92,4 +92,4 @@ jobs:
         with:
           skipIfReleaseExists: true
           artifacts: "Uni.API/bin/Release/*.nupkg"
-          tag: needs.check-tag.outputs.version
+          tag: ${{ needs.check-tag.outputs.version }}
