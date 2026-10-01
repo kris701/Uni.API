@@ -30,20 +30,24 @@ namespace Uni.API
 		/// The list of plugins
 		/// </summary>
 		public List<IUniAPIPlugin> Plugins { get; set; } = new List<IUniAPIPlugin>();
-		private readonly ILogger<UniAPIStartup> _logger;
-		private readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>
+		/// <summary>
+		/// A logger factory to use across the startup
+		/// </summary>
+		public ILoggerFactory LoggerFactory { get; } = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
 		{
 			builder.SetMinimumLevel(LogLevel.Information);
 			builder.AddConsole();
 			builder.AddEventSourceLogger();
 		});
 
+		private readonly ILogger<UniAPIStartup> _logger;
+
 		/// <summary>
 		/// Main constructor
 		/// </summary>
 		public UniAPIStartup()
 		{
-			_logger = _loggerFactory.CreateLogger<UniAPIStartup>();
+			_logger = LoggerFactory.CreateLogger<UniAPIStartup>();
 		}
 
 		/// <summary>
@@ -166,7 +170,7 @@ namespace Uni.API
 			_logger.LogDebug($"Configuring all plugins");
 			foreach (var plugin in Plugins)
 			{
-				var logger = _loggerFactory.CreateLogger(plugin.GetType());
+				var logger = LoggerFactory.CreateLogger(plugin.GetType());
 				plugin.ConfigureConfiguration(configuration, logger);
 			}
 		}
@@ -255,7 +259,7 @@ namespace Uni.API
 		{
 			foreach (var plugin in Plugins)
 			{
-				var logger = _loggerFactory.CreateLogger(plugin.GetType());
+				var logger = LoggerFactory.CreateLogger(plugin.GetType());
 				plugin.ConfigureServices(services, logger);
 			}
 		}
