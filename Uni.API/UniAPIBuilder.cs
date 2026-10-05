@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
 namespace Uni.API
@@ -19,6 +20,7 @@ namespace Uni.API
 		public static WebApplication CreateUniAPIApplication<T>(string[] args, string configFile = "configuration.json") where T : UniAPIStartup
 		{
 			var builder = WebApplication.CreateBuilder(args);
+			builder.WebHost.UseShutdownTimeout(TimeSpan.FromSeconds(5));
 			if (File.Exists(configFile))
 				builder.Configuration.AddJsonFile(configFile);
 
