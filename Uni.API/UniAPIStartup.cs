@@ -33,20 +33,21 @@ namespace Uni.API
 		/// <summary>
 		/// A logger factory to use across the startup
 		/// </summary>
-		public ILoggerFactory LoggerFactory { get; } = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
-		{
-			builder.SetMinimumLevel(LogLevel.Information);
-			builder.AddConsole();
-			builder.AddEventSourceLogger();
-		});
+		public ILoggerFactory LoggerFactory { get; private set; }
 
 		private readonly ILogger<UniAPIStartup> _logger;
 
 		/// <summary>
 		/// Main constructor
 		/// </summary>
-		public UniAPIStartup()
+		public UniAPIStartup(LogLevel logLevel)
 		{
+			LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
+			{
+				builder.SetMinimumLevel(logLevel);
+				builder.AddConsole();
+				builder.AddEventSourceLogger();
+			});
 			_logger = LoggerFactory.CreateLogger<UniAPIStartup>();
 		}
 
