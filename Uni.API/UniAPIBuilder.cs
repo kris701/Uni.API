@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Uni.API
 {
@@ -24,7 +25,15 @@ namespace Uni.API
 			if (File.Exists(configFile))
 				builder.Configuration.AddJsonFile(configFile);
 
+			var loggingSection = builder.Configuration.GetSection("Logging");
+
 			var startup = Activator.CreateInstance<T>();
+
+			if (loggingSection != null)
+			{
+				startup.LoggerFactory = LoggerFactory.Create(c => c.AddConfiguration(loggingSection).AddConsole());
+				startup.Logger = startup.LoggerFactory.CreateLogger<T>();
+			}
 
 			startup.LoadPlugins(builder.Configuration);
 

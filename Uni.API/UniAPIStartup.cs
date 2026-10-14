@@ -33,23 +33,11 @@ namespace Uni.API
 		/// <summary>
 		/// A logger factory to use across the startup
 		/// </summary>
-		public ILoggerFactory LoggerFactory { get; private set; }
-
-		private readonly ILogger<UniAPIStartup> _logger;
-
+		public ILoggerFactory? LoggerFactory { get; internal set; }
 		/// <summary>
-		/// Main constructor
+		/// Logger interface
 		/// </summary>
-		public UniAPIStartup(LogLevel logLevel)
-		{
-			LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
-			{
-				builder.SetMinimumLevel(logLevel);
-				builder.AddConsole();
-				builder.AddEventSourceLogger();
-			});
-			_logger = LoggerFactory.CreateLogger<UniAPIStartup>();
-		}
+		public ILogger<UniAPIStartup>? Logger { get; internal set; }
 
 		/// <summary>
 		/// Load all registered plugins
@@ -59,12 +47,12 @@ namespace Uni.API
 		/// <exception cref="Exception"></exception>
 		public virtual void LoadPlugins(IConfiguration configuration, List<string>? additionalPlugins = null)
 		{
-			_logger.LogInformation($"Starting plugin loading procedure...");
+			Logger?.LogInformation($"Starting plugin loading procedure...");
 
 			var toUse = GetListOfPluginsToLoad(configuration, additionalPlugins);
 
 			if (toUse.Count == 0)
-				_logger.LogWarning("No plugins is set to load");
+				Logger?.LogWarning("No plugins is set to load");
 			else
 			{
 				LoadTargetedPluginAssemblies(toUse);
@@ -75,7 +63,7 @@ namespace Uni.API
 
 			ConfigurePlugins(configuration);
 
-			_logger.LogInformation($"Uni API plugin loading complete with {Plugins.Count} plugins loaded!");
+			Logger?.LogInformation($"Uni API plugin loading complete with {Plugins.Count} plugins loaded!");
 		}
 
 		/// <summary>
@@ -86,7 +74,7 @@ namespace Uni.API
 		/// <returns></returns>
 		private List<string> GetListOfPluginsToLoad(IConfiguration configuration, List<string>? additionalPlugins = null)
 		{
-			_logger.LogDebug("Getting target plugin list...");
+			Logger?.LogDebug("Getting target plugin list...");
 			var toUse = new List<string>();
 			if (additionalPlugins != null)
 				toUse.AddRange(additionalPlugins);
@@ -103,24 +91,24 @@ namespace Uni.API
 		/// <exception cref="Exception"></exception>
 		private void LoadTargetedPluginAssemblies(List<string> toUse)
 		{
-			_logger.LogDebug($"Plugin namespaces to search ({PluginNamespaces.Count} in total):");
+			Logger?.LogDebug($"Plugin namespaces to search ({PluginNamespaces.Count} in total):");
 			foreach (var nameSpace in PluginNamespaces)
-				_logger.LogDebug($"\t{nameSpace}");
+				Logger?.LogDebug($"\t{nameSpace}");
 
-			_logger.LogDebug("Getting all assemblies in current domain...");
+			Logger?.LogDebug("Getting all assemblies in current domain...");
 			var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
 			var loadedPaths = loadedAssemblies.Select(a => a.Location).ToArray();
-			_logger.LogDebug($"A total of {loadedAssemblies.Count} assemblies exist");
+			Logger?.LogDebug($"A total of {loadedAssemblies.Count} assemblies exist");
 
-			_logger.LogDebug("Removing all from the list that is not in the plugin namespace...");
+			Logger?.LogDebug("Removing all from the list that is not in the plugin namespace...");
 			var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll").ToList();
-			_logger.LogDebug($"A total of {referencedPaths.Count} assemblies referenced");
+			Logger?.LogDebug($"A total of {referencedPaths.Count} assemblies referenced");
 			referencedPaths.RemoveAll(x => !PluginNamespaces.Any(y => x.Contains(y)));
-			_logger.LogDebug($"A total of {referencedPaths.Count} assemblies referenced that is within a plugin namespace.");
+			Logger?.LogDebug($"A total of {referencedPaths.Count} assemblies referenced that is within a plugin namespace.");
 			var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).Select(x => new FileInfo(x)).ToList();
-			_logger.LogDebug($"A total of {toLoad.Count} plugin assemblies to load");
+			Logger?.LogDebug($"A total of {toLoad.Count} plugin assemblies to load");
 
-			_logger.LogDebug("Removing all from the list that is not in the plugin list...");
+			Logger?.LogDebug("Removing all from the list that is not in the plugin list...");
 			toLoad.RemoveAll(x => !toUse.Any(y => x.Name.EndsWith($"{y}.dll")));
 			var orderedToLoad = new List<FileInfo>();
 			foreach (var target in toUse)
@@ -131,10 +119,10 @@ namespace Uni.API
 				orderedToLoad.Add(assemblyTarget);
 			}
 
-			_logger.LogDebug($"A total of {orderedToLoad.Count} plugin assemblies to load.");
+			Logger?.LogDebug($"A total of {orderedToLoad.Count} plugin assemblies to load.");
 			orderedToLoad.ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path.FullName))));
 			if (toUse.Count != orderedToLoad.Count)
-				_logger.LogWarning("Not all targeted plugins could be found!");
+				Logger?.LogWarning("Not all targeted plugins could be found!");
 		}
 
 		/// <summary>
@@ -142,7 +130,7 @@ namespace Uni.API
 		/// </summary>
 		private void InstanciatePlugins()
 		{
-			_logger.LogDebug("Instantiating all plugins...");
+			Logger?.LogDebug("Instantiating all plugins...");
 			var plugins = new List<Type>();
 			foreach (var nameSpace in PluginNamespaces)
 				plugins.AddRange(GetTypesInNamespace(nameSpace));
@@ -159,7 +147,7 @@ namespace Uni.API
 					newPlugins++;
 				}
 			}
-			_logger.LogDebug($"A total of {newPlugins} plugins instantiated");
+			Logger?.LogDebug($"A total of {newPlugins} plugins instantiated");
 		}
 
 		/// <summary>
@@ -168,10 +156,10 @@ namespace Uni.API
 		/// <param name="configuration"></param>
 		private void ConfigurePlugins(IConfiguration configuration)
 		{
-			_logger.LogDebug($"Configuring all plugins");
+			Logger?.LogDebug($"Configuring all plugins");
 			foreach (var plugin in Plugins)
 			{
-				var logger = LoggerFactory.CreateLogger(plugin.GetType());
+				var logger = LoggerFactory?.CreateLogger(plugin.GetType());
 				plugin.ConfigureConfiguration(configuration, logger);
 			}
 		}
@@ -182,7 +170,7 @@ namespace Uni.API
 		/// <exception cref="Exception"></exception>
 		private void EnsurePluginRequirementsAreMet()
 		{
-			_logger.LogDebug($"Checking if plugin requirements are present");
+			Logger?.LogDebug($"Checking if plugin requirements are present");
 			for (var i = 0; i < Plugins.Count; i++)
 			{
 				var plugin = Plugins[i];
@@ -260,7 +248,7 @@ namespace Uni.API
 		{
 			foreach (var plugin in Plugins)
 			{
-				var logger = LoggerFactory.CreateLogger(plugin.GetType());
+				var logger = LoggerFactory?.CreateLogger(plugin.GetType());
 				plugin.ConfigureServices(services, logger);
 			}
 		}

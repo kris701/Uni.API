@@ -36,12 +36,12 @@ namespace Uni.API.Models
 		/// </summary>
 		/// <param name="configuration"></param>
 		/// <param name="logger"></param>
-		public void ConfigureConfiguration(IConfiguration configuration, ILogger logger);
+		public void ConfigureConfiguration(IConfiguration configuration, ILogger? logger);
 		/// <summary>
 		/// Configure the services for the plugins
 		/// </summary>
 		/// <param name="services"></param>
 		/// <param name="logger"></param>
-		public void ConfigureServices(IServiceCollection services, ILogger logger);
+		public void ConfigureServices(IServiceCollection services, ILogger? logger);
 	}
 }

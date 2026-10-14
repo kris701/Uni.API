@@ -8,7 +8,7 @@ namespace ExampleAPI
 	/// </summary>
 	public class SampleStartup : UniAPIStartup
 	{
-		public SampleStartup() : base(LogLevel.Information)
+		public SampleStartup()
 		{
 			PluginNamespaces = new List<string>()
 			{

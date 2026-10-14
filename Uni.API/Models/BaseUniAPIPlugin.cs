@@ -59,7 +59,7 @@ namespace Uni.API.Models
 		/// </summary>
 		/// <param name="configuration"></param>
 		/// <param name="logger"></param>
-		public virtual void ConfigureConfiguration(IConfiguration configuration, ILogger logger)
+		public virtual void ConfigureConfiguration(IConfiguration configuration, ILogger? logger)
 		{
 
 		}
@@ -69,7 +69,7 @@ namespace Uni.API.Models
 		/// </summary>
 		/// <param name="services"></param>
 		/// <param name="logger"></param>
-		public virtual void ConfigureServices(IServiceCollection services, ILogger logger)
+		public virtual void ConfigureServices(IServiceCollection services, ILogger? logger)
 		{
 			IsActive = true;
 		}

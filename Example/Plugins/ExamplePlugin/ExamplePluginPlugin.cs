@@ -20,20 +20,26 @@ namespace ExampleAPI.Plugins.ExamplePlugin
 		{
 		}
 
-		public override void ConfigureConfiguration(IConfiguration configuration, ILogger logger)
+		public override void ConfigureConfiguration(IConfiguration configuration, ILogger? logger)
 		{
 			// Do whatever configuration you need
 			_someImportantConfigValue = configuration.GetSectionValue<string>("ExamplePluginSetup", "value1");
+
+			logger?.LogInformation("Plugin configured!");
+
 			base.ConfigureConfiguration(configuration,logger);
 		}
 
-		public override void ConfigureServices(IServiceCollection services, ILogger logger)
+		public override void ConfigureServices(IServiceCollection services, ILogger? logger)
 		{
 			// Configure plugin services here
 			services.AddSingleton(new SomePluginConfiguration()
 			{
 				Value1 = _someImportantConfigValue
 			});
+
+			logger?.LogInformation("Plugin services configured!");
+
 			base.ConfigureServices(services,logger);
 		}
 	}
