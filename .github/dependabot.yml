@@ -10,3 +10,5 @@ updates:
     open-pull-requests-limit: 15
     schedule:
       interval: "weekly"
+    assignees:
+      - "kris701"
