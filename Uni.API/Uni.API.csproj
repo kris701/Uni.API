@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Swashbuckle.AspNetCore" Version="10.3.1" />
+	  <PackageReference Include="Swashbuckle.AspNetCore" Version="11.0.1" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.14" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.14" />
   </ItemGroup>
